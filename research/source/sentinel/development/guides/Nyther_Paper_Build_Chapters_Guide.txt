@@ -1,0 +1,461 @@
+PART I — Foundations of Power Grid Cybersecurity
+Chapter 1 — Introduction to Cyber-Physical Security in Power Systems
+
+Explains:
+
+evolution of smart grids
+
+cyber-physical infrastructure
+
+why grid security matters
+
+real world attacks (Ukraine grid attack, Stuxnet, Triton)
+
+Goal: motivate the problem
+
+Chapter 2 — Fundamentals of Electric Power Systems
+
+Reader must understand grid physics.
+
+Topics:
+
+power generation
+
+transmission networks
+
+distribution networks
+
+transformers
+
+feeders
+
+power flow basics
+
+Key equations:
+
+AC power flow
+
+Kirchhoff’s laws
+
+load balance
+
+Chapter 3 — Industrial Control Systems and SCADA Networks
+
+Explains grid digital infrastructure.
+
+Topics:
+
+SCADA architecture
+
+PLCs
+
+RTUs
+
+smart meters
+
+AMI infrastructure
+
+Protocols:
+
+Modbus
+
+DNP3
+
+IEC-61850
+
+OPC-UA
+
+Chapter 4 — Cyber Threats to Power Infrastructure
+
+Threat landscape.
+
+Topics:
+
+false data injection
+
+meter tampering
+
+SCADA intrusions
+
+device spoofing
+
+load manipulation
+
+Case studies:
+
+Ukraine grid attack
+
+Stuxnet
+
+Triton
+
+Colonial pipeline
+
+PART II — Existing Technologies and Research
+Chapter 5 — Literature Review of Grid Security Research
+
+Academic research.
+
+Topics:
+
+physics-based anomaly detection
+
+state estimation security
+
+cyber-physical IDS
+
+power theft detection
+
+Chapter 6 — Commercial Power Grid Security Platforms
+
+Industry solutions.
+
+Examples:
+
+Dragos
+
+Claroty
+
+Nozomi Networks
+
+Armis
+
+Darktrace
+
+Explain:
+
+how they work
+
+limitations
+
+why Nyther Sentinel is different
+
+PART III — Nyther Sentinel Concept
+Chapter 7 — Design Philosophy of Nyther Sentinel
+
+Core idea:
+
+Cyber + Electrical Physics + Thermodynamics
+
+
+Explain:
+
+multi-domain detection
+
+defense in depth
+
+why three subsystems exist
+
+Introduce:
+
+Dvvalin
+
+Aethelred
+
+Brynhildr
+
+Chapter 8 — Nyther Sentinel System Architecture
+
+High level architecture:
+
+Sensors
+↓
+Data ingestion
+↓
+Processing layer
+↓
+Detection engines
+↓
+Decision fusion
+↓
+Response system
+
+
+Include:
+
+data pipelines
+
+control plane
+
+detection plane
+
+PART IV — Detection Engines
+Chapter 9 — Dvvalin: Industrial Network Intrusion Detection
+
+Explain:
+
+device discovery
+
+protocol modeling
+
+anomaly detection
+
+Include:
+
+graph modeling
+
+command sequence models
+
+ML detection
+
+Chapter 10 — Aethelred: Physics-Informed Grid Anomaly Detection
+
+Explain:
+
+power flow models
+
+state estimation
+
+physics-informed neural networks
+
+theft detection
+
+Chapter 11 — Brynhildr: Thermodynamic Side-Channel Security
+
+Explain:
+
+heat signatures
+
+energy conservation
+
+thermal anomaly detection
+
+Chapter 12 — Multi-Layer Detection Fusion
+
+Explain how all systems combine.
+
+Topics:
+
+probabilistic fusion
+
+Bayesian inference
+
+weighted anomaly scoring
+
+decision thresholds
+
+PART V — Mathematical Framework
+Chapter 13 — Mathematical Detection Pipeline
+
+(the chapter we already wrote)
+
+Includes:
+
+sensor models
+
+anomaly equations
+
+detection metrics
+
+Chapter 14 — Machine Learning Models
+
+Explain algorithms used:
+
+Isolation Forest
+
+Graph Neural Networks
+
+LSTMs
+
+Physics-informed neural networks
+
+Training pipelines included.
+
+PART VI — System Implementation
+Chapter 15 — Data Collection Infrastructure
+
+Sensors:
+
+smart meters
+
+PMUs
+
+thermal sensors
+
+network taps
+
+Chapter 16 — Data Processing and Streaming Architecture
+
+Technologies:
+
+Kafka
+
+Flink
+
+Spark
+
+edge computing
+
+Chapter 17 — Nyther Sentinel Backend Architecture
+
+Software components:
+
+ingestion API
+
+analytics engines
+
+storage systems
+
+Possible stack:
+
+Go / Rust / Python
+
+PostgreSQL
+
+time series databases
+
+Chapter 18 — Real-Time Detection Engine
+
+Explain:
+
+streaming analytics
+
+anomaly pipelines
+
+event correlation
+
+PART VII — Deployment and Operations
+Chapter 19 — Deployment in Power Grid Infrastructure
+
+Deployment models:
+
+substation monitoring
+
+distribution networks
+
+cloud + edge architecture
+
+Chapter 20 — Security Hardening of Nyther Sentinel
+
+Topics:
+
+zero trust architecture
+
+encrypted telemetry
+
+device authentication
+
+Chapter 21 — Response and Automated Mitigation
+
+What happens after detection?
+
+Examples:
+
+isolate compromised PLC
+
+block malicious commands
+
+alert grid operators
+
+PART VIII — Validation and Testing
+Chapter 22 — Threat Simulation and Test Environment
+
+How to simulate attacks.
+
+Tools:
+
+GridLAB-D
+
+OpenDSS
+
+PowerWorld
+
+Chapter 23 — Experimental Evaluation
+
+Metrics:
+
+detection accuracy
+
+false positives
+
+response latency
+
+Chapter 24 — Real World Case Studies
+
+Simulated scenarios:
+
+electricity theft
+
+SCADA intrusion
+
+FDI attack
+
+PART IX — Business and Commercialization
+Chapter 25 — Market Opportunity
+
+Explain:
+
+global grid cybersecurity market
+
+energy utilities
+
+Chapter 26 — Competitive Analysis
+
+Compare Nyther Sentinel vs:
+
+Dragos
+
+Claroty
+
+Nozomi
+
+Chapter 27 — Commercial Product Architecture
+
+Turning research into product:
+
+SaaS platform
+
+hardware appliances
+
+licensing model
+
+Chapter 28 — Regulatory Compliance
+
+Standards:
+
+NERC CIP
+
+IEC 62443
+
+NIST grid security
+
+Chapter 29 — Deployment Strategy for Utilities
+
+How utilities adopt system.
+
+PART X — Future Directions
+Chapter 30 — Future Research
+
+Topics:
+
+AI-driven grid defense
+
+autonomous grid security
+
+quantum-resistant monitoring
+
+Chapter 31 — Conclusion
+
+Summarize:
+
+architecture
+
+impact
+
+future of cyber-physical defense
+
+Why This Structure is Powerful
+
+This makes your document look like a real technical book or PhD thesis.
+
+A reader will learn:
+
+1️⃣ What the problem is
+2️⃣ How the grid works
+3️⃣ What current solutions do
+4️⃣ Why Nyther Sentinel is needed
+5️⃣ How it works mathematically
+6️⃣ How to implement it
+7️⃣ How to deploy it
+8️⃣ How to validate it
+9️⃣ How to commercialize it

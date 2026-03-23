@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyther Sentinel — Complete Improvements Guide</title>
+<style>
+:root {
+  --bg:#fff; --bg2:#f7f6f2; --bg3:#f0ede6;
+  --text:#1a1a18; --text2:#4a4a47; --text3:#7a7a77;
+  --border:#e0ddd6; --border2:#ccc9c0;
+  --teal:#0F6E56; --teal-bg:#E1F5EE; --teal-mid:#1D9E75;
+  --purple:#534AB7; --purple-bg:#EEEDFE; --purple-mid:#7F77DD;
+  --amber:#854F0B; --amber-bg:#FAEEDA; --amber-mid:#EF9F27;
+  --blue:#185FA5; --blue-bg:#E6F1FB;
+  --red:#A32D2D; --red-bg:#FCEBEB;
+  --green:#3B6D11; --green-bg:#EAF3DE;
+  --gray-bg:#F1EFE8; --code-bg:#f4f3ef;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.75}
+.container{max-width:940px;margin:0 auto;padding:40px 32px 80px}
+.doc-header{border-bottom:2px solid var(--teal-mid);padding-bottom:26px;margin-bottom:36px}
+h1{font-size:28px;font-weight:700;margin-top:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{padding:3px 11px;border-radius:20px;font-size:11px;font-weight:600}
+.chip-teal{background:var(--teal-bg);color:var(--teal)}
+.chip-purple{background:var(--purple-bg);color:var(--purple)}
+.chip-amber{background:var(--amber-bg);color:var(--amber)}
+.chip-blue{background:var(--blue-bg);color:var(--blue)}
+.chip-red{background:var(--red-bg);color:var(--red)}
+h2{font-size:21px;font-weight:600;margin:52px 0 18px;padding-top:52px;border-top:1px solid var(--border)}
+h2.first{border-top:none;margin-top:0;padding-top:0}
+h3{font-size:16px;font-weight:600;margin:28px 0 8px}
+h4{font-size:14px;font-weight:600;margin:16px 0 6px;color:var(--text2)}
+p{margin-bottom:12px;color:var(--text2)}
+ul,ol{padding-left:22px;margin-bottom:12px}
+li{margin:5px 0;color:var(--text2)}
+strong{color:var(--text)}
+a{color:var(--blue)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px 18px;overflow-x:auto;font-size:12.5px;line-height:1.65;margin:12px 0 18px}
+code{font-family:'SF Mono','Fira Code','Consolas',monospace}
+p code,li code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:12px;color:var(--teal)}
+.math{background:var(--bg3);border-left:3px solid var(--border2);border-radius:0 6px 6px 0;padding:12px 16px;margin:12px 0 18px;font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:12.5px;line-height:1.8;white-space:pre-wrap;color:var(--text)}
+.callout{border-radius:8px;padding:13px 17px;margin:14px 0}
+.callout.info{background:var(--blue-bg);border-left:3px solid var(--blue)}
+.callout.success{background:var(--teal-bg);border-left:3px solid var(--teal-mid)}
+.callout.warn{background:var(--amber-bg);border-left:3px solid var(--amber-mid)}
+.callout.danger{background:var(--red-bg);border-left:3px solid var(--red)}
+.callout-title{font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.callout.info .callout-title{color:var(--blue)}
+.callout.success .callout-title{color:var(--teal)}
+.callout.warn .callout-title{color:var(--amber)}
+.callout.danger .callout-title{color:var(--red)}
+.callout p,.callout li{font-size:13.5px;margin:0}
+.callout ul{margin:5px 0 0}
+.section-banner{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:10px;margin:44px 0 22px}
+.section-banner.ae{background:var(--teal-bg);border-left:4px solid var(--teal-mid)}
+.section-banner.dv{background:var(--purple-bg);border-left:4px solid var(--purple-mid)}
+.section-banner.sys{background:var(--amber-bg);border-left:4px solid var(--amber-mid)}
+.section-banner.dep{background:var(--blue-bg);border-left:4px solid var(--blue)}
+.section-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0}
+.icon-ae{background:var(--teal-mid);color:#fff}
+.icon-dv{background:var(--purple-mid);color:#fff}
+.icon-sys{background:var(--amber-mid);color:#fff}
+.icon-dep{background:var(--blue);color:#fff}
+.section-banner h2{margin:0;padding:0;border:none;font-size:18px}
+.section-banner p{margin:0;font-size:13px}
+.imp-card{border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin:20px 0}
+.imp-card.ae{border-left:4px solid var(--teal-mid)}
+.imp-card.dv{border-left:4px solid var(--purple-mid)}
+.imp-card.sys{border-left:4px solid var(--amber-mid)}
+.imp-card.dep{border-left:4px solid var(--blue)}
+.imp-card h3{margin:0 0 8px;font-size:15px}
+.imp-meta{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}
+.tag{font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px}
+.tag-ae{background:var(--teal-bg);color:var(--teal)}
+.tag-dv{background:var(--purple-bg);color:var(--purple)}
+.tag-sys{background:var(--amber-bg);color:var(--amber)}
+.tag-dep{background:var(--blue-bg);color:var(--blue)}
+.tag-now{background:var(--red-bg);color:var(--red)}
+.tag-soon{background:var(--amber-bg);color:var(--amber)}
+.tag-later{background:var(--gray-bg);color:var(--text3)}
+.why{background:var(--bg2);border-radius:7px;padding:11px 14px;margin:0 0 14px;font-size:13px;color:var(--text2);border-left:3px solid var(--border2)}
+.why strong{color:var(--teal)}
+.toc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin-bottom:40px}
+.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:12px}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 32px}
+.toc a{color:var(--blue);text-decoration:none;font-size:13px;display:block;padding:2px 0}
+.toc a:hover{text-decoration:underline}
+.toc-section{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin:10px 0 4px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+th{background:var(--bg3);padding:9px 13px;text-align:left;font-weight:600;border:1px solid var(--border)}
+td{padding:9px 13px;border:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:nth-child(even) td{background:var(--bg2)}
+.tick{color:var(--teal);font-weight:700}
+.cross{color:var(--red);font-weight:700}
+.priority-row{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0 18px;padding:16px 20px;background:var(--bg2);border-radius:10px}
+.priority-block{flex:1;min-width:200px}
+.priority-block h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.priority-block.now h4{color:var(--red)}
+.priority-block.soon h4{color:var(--amber)}
+.priority-block.later h4{color:var(--text3)}
+.priority-block li{font-size:12.5px;margin:3px 0}
+@media(max-width:620px){.toc-grid{grid-template-columns:1fr}.priority-row{flex-direction:column}.container{padding:22px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="chips">
+    <span class="chip chip-teal">AEthelred — 10 upgrades</span>
+    <span class="chip chip-purple">Dvvalin — 9 upgrades</span>
+    <span class="chip chip-amber">System / Valkyrie — 8 upgrades</span>
+    <span class="chip chip-blue">Deployment — 7 upgrades</span>
+  </div>
+  <h1>Nyther Sentinel — Complete Improvements Guide</h1>
+  <p>All 34 upgrades from prototype to small-grid deployable — with full implementation code, math, and academic citations for each.</p>
+</div>
+
+<!-- PRIORITY SUMMARY -->
+<div class="priority-row">
+  <div class="priority-block now">
+    <h4>Do Now (in 3-month sprint)</h4>
+    <ul>
+      <li>PI-GNN for AEthelred</li>
+      <li>Bayesian uncertainty (cut FPR)</li>
+      <li>Multi-timescale windows</li>
+      <li>Online adaptive learning</li>
+      <li>Voltage stability index</li>
+      <li>Frequency + ROCOF monitor</li>
+      <li>Honeypot PLC decoys</li>
+      <li>MITRE ATT&amp;CK auto-mapping</li>
+      <li>Replay attack detection</li>
+      <li>Protocol fuzzing defense</li>
+      <li>SHAP explainability</li>
+      <li>Chaos engineering engine</li>
+      <li>Auto incident report</li>
+      <li>Docker + Grafana stack</li>
+      <li>REST API + OpenAPI spec</li>
+      <li>WhatsApp/SMS alerting</li>
+    </ul>
+  </div>
+  <div class="priority-block soon">
+    <h4>Post-PoC (months 4–8)</h4>
+    <ul>
+      <li>Adversarial PINN hardening</li>
+      <li>Wavelet theft detection</li>
+      <li>Causal root-cause layer</li>
+      <li>Transfer learning</li>
+      <li>IEC-61850 + DNP3 + OPC-UA</li>
+      <li>Device timing fingerprinting</li>
+      <li>Graph behavioral GNN</li>
+      <li>MITM RTT detection</li>
+      <li>Honeypot data streams</li>
+      <li>MISP threat intel</li>
+      <li>IEC 62443 compliance map</li>
+      <li>RBAC / auth</li>
+      <li>Tamper-evident audit log</li>
+      <li>Edge deployment (Jetson)</li>
+      <li>Hardware-in-the-loop test</li>
+    </ul>
+  </div>
+  <div class="priority-block later">
+    <h4>Post-Funding</h4>
+    <ul>
+      <li>Encrypted traffic analysis</li>
+      <li>Federated learning</li>
+      <li>Live digital twin sync</li>
+    </ul>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>All 34 improvements</h3>
+  <div class="toc-grid">
+    <div>
+      <div class="toc-section">AEthelred</div>
+      <a href="#ae1">1. Physics-Informed GNN</a>
+      <a href="#ae2">2. Bayesian PINN uncertainty</a>
+      <a href="#ae3">3. Multi-timescale windows</a>
+      <a href="#ae4">4. Online adaptive learning</a>
+      <a href="#ae5">5. Wavelet theft detection</a>
+      <a href="#ae6">6. Voltage stability L-index</a>
+      <a href="#ae7">7. Frequency / ROCOF monitor</a>
+      <a href="#ae8">8. Adversarial PINN hardening</a>
+      <a href="#ae9">9. Causal root-cause layer</a>
+      <a href="#ae10">10. Transfer learning</a>
+      <div class="toc-section">Dvvalin</div>
+      <a href="#dv1">11. IEC-61850 + DNP3 + OPC-UA</a>
+      <a href="#dv2">12. Device timing fingerprinting</a>
+      <a href="#dv3">13. Graph behavioral GNN</a>
+      <a href="#dv4">14. Replay attack detection</a>
+      <a href="#dv5">15. Honeypot PLC decoys</a>
+      <a href="#dv6">16. MITRE ATT&amp;CK auto-mapping</a>
+      <a href="#dv7">17. Protocol fuzzing defense</a>
+      <a href="#dv8">18. MITM via RTT detection</a>
+      <a href="#dv9">19. Encrypted traffic analysis</a>
+    </div>
+    <div>
+      <div class="toc-section">System / Valkyrie</div>
+      <a href="#sys1">20. SHAP explainability</a>
+      <a href="#sys2">21. Live digital twin sync</a>
+      <a href="#sys3">22. Honeypot data streams</a>
+      <a href="#sys4">23. MISP threat intelligence</a>
+      <a href="#sys5">24. Auto incident report</a>
+      <a href="#sys6">25. IEC 62443 compliance map</a>
+      <a href="#sys7">26. Chaos engineering engine</a>
+      <a href="#sys8">27. Federated learning</a>
+      <div class="toc-section">Deployment</div>
+      <a href="#dep1">28. Edge deployment (Jetson Nano)</a>
+      <a href="#dep2">29. Docker + Grafana stack</a>
+      <a href="#dep3">30. REST API + OpenAPI spec</a>
+      <a href="#dep4">31. Role-based access control</a>
+      <a href="#dep5">32. Tamper-evident audit log</a>
+      <a href="#dep6">33. WhatsApp / SMS alerting</a>
+      <a href="#dep7">34. Hardware-in-the-loop testing</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  AETHELRED SECTION                                           -->
+<!-- ============================================================ -->
+<div class="section-banner ae">
+  <div class="section-icon icon-ae">Æ</div>
+  <div>
+    <h2 class="first">AEthelred — Physics-Informed Detection Engine</h2>
+    <p>10 improvements spanning detection intelligence, robustness against adversarial attacks, and operational utility</p>
+  </div>
+</div>
+
+<div class="imp-card ae" id="ae1">
+<h3>1. Physics-Informed Graph Neural Network (PI-GNN)</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> A power grid IS a graph — buses as nodes, lines as edges. The current feedforward PINN treats all buses independently and cannot exploit topological relationships. A Graph Attention Network at bus 7 knows its neighbours are buses 5, 8, 9. FDI attacks that shift power between connected buses create characteristic graph-level residual patterns the PI-GNN catches 10–15% more accurately. Academic basis: Chen, Liu et al., MDPI Cybersecurity 2025 (already in your research docs).</div>
+<div class="math">Physics-informed GNN loss:
+L_total = L_data + λ_phys · L_physics
+
+L_data   = (1/N) Σ || ŷᵢ - yᵢ ||²          ← supervised on node features
+L_physics = (1/N) Σ |P_calc(ŷ) - P_reported|² ← KCL violation per node
+
+P_calc from Y-bus: S = V · conj(Y · V) → P = Re(S)</div>
+<pre><code># pip install torch-geometric
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch_geometric.nn import GATConv
+from torch_geometric.data import Data
+import numpy as np
+import pandapower as pp
+import pandapower.networks as pn
+
+class PhysicsInformedGNN(nn.Module):
+    """
+    Graph Attention Network with physics loss for grid anomaly detection.
+    Each bus = node. Each transmission line = edge (bidirectional).
+    Node features: (vm_pu, va_deg_norm, p_mw_norm, q_mvar_norm)
+    Physics constraint in loss: KCL violation per bus.
+    """
+    def __init__(self, in_feats=4, hidden=64, out_feats=4, heads=4):
+        super().__init__()
+        self.conv1 = GATConv(in_feats, hidden, heads=heads, concat=False, dropout=0.1)
+        self.conv2 = GATConv(hidden, hidden, heads=heads, concat=False, dropout=0.1)
+        self.conv3 = GATConv(hidden, out_feats, heads=1, concat=False)
+        self.bn1 = nn.BatchNorm1d(hidden)
+        self.bn2 = nn.BatchNorm1d(hidden)
+
+    def forward(self, x, edge_index):
+        h = F.tanh(self.bn1(self.conv1(x, edge_index)))
+        h = F.tanh(self.bn2(self.conv2(h, edge_index)))
+        return self.conv3(h, edge_index)
+
+
+def build_graph_from_pandapower(net) -> Data:
+    """Convert pandapower network into a PyG Data object."""
+    pp.runpp(net, numba=False, algorithm='bfsw')
+
+    vm  = net.res_bus['vm_pu'].values.astype('f4')
+    va  = (net.res_bus['va_degree'].values / 180.0).astype('f4')
+    p   = (net.res_bus['p_mw'].values / net.sn_mva).astype('f4')
+    q   = (net.res_bus['q_mvar'].values / net.sn_mva).astype('f4')
+    x = torch.tensor(np.stack([vm, va, p, q], axis=1))
+
+    # Bidirectional edges from lines
+    fb = net.line['from_bus'].values
+    tb = net.line['to_bus'].values
+    edge_index = torch.tensor(
+        np.stack([np.r_[fb, tb], np.r_[tb, fb]], axis=0), dtype=torch.long)
+
+    return Data(x=x, edge_index=edge_index)
+
+
+def physics_loss(pred: torch.Tensor, Y_bus: np.ndarray, sn_mva: float) -> torch.Tensor:
+    """KCL violation penalty — embeds Kirchhoff's Current Law into training."""
+    vm  = pred[:, 0]                          # voltage magnitude
+    va  = pred[:, 1] * torch.tensor(np.pi)    # angle in radians
+    p   = pred[:, 2] * sn_mva                 # active power MW
+
+    V   = vm * torch.exp(1j * va.to(torch.cfloat))
+    Y   = torch.tensor(Y_bus, dtype=torch.cfloat)
+    P_calc = (V * torch.conj(Y @ V)).real
+
+    return torch.mean((P_calc - p.to(torch.cfloat).real) ** 2)
+
+
+def train_pi_gnn(model, graphs_normal, Y_bus, sn_mva,
+                  epochs=200, lr=1e-3, lambda_phys=0.5):
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    model.train()
+    for epoch in range(epochs):
+        total = 0.0
+        for g in graphs_normal:
+            pred = model(g.x, g.edge_index)
+            l_data  = F.mse_loss(pred, g.x)
+            l_phys  = physics_loss(pred, Y_bus, sn_mva)
+            loss    = l_data + lambda_phys * l_phys
+            opt.zero_grad(); loss.backward(); opt.step()
+            total += loss.item()
+        if epoch % 50 == 0:
+            print(f"Epoch {epoch:4d}  loss={total/len(graphs_normal):.6f}")
+    return model
+
+
+def detect_gnn(model, graph: Data, threshold=0.025) -> dict:
+    model.eval()
+    with torch.no_grad():
+        pred = model(graph.x, graph.edge_index)
+        residuals = torch.abs(pred - graph.x).numpy()   # shape (n_buses, 4)
+        bus_scores = residuals.mean(axis=1)              # per-bus anomaly score
+
+    attacked_buses = np.where(bus_scores > threshold)[0].tolist()
+    return {
+        'anomaly_score':  float(bus_scores.max()),
+        'bus_scores':     bus_scores.tolist(),
+        'attacked_buses': attacked_buses,
+        'is_anomaly':     len(attacked_buses) > 0,
+    }</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae2">
+<h3>2. Bayesian PINN with uncertainty quantification</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> The current PINN outputs a single point prediction — you have no idea how confident it is. A Bayesian PINN uses Monte Carlo Dropout to output a full distribution. Alert only when the observation falls outside the 3σ confidence interval. This is the single most effective false-positive reduction upgrade available — typically cuts FPR from ~8% down to ~2%.</div>
+<div class="math">MC Dropout inference:
+Run N forward passes with dropout active at inference time.
+Mean: μ̂(x) = (1/N) Σ f_θ(x, dropout_i)
+Std:  σ̂(x) = std of N predictions
+
+Anomaly z-score per feature:
+z_k = |y_obs_k - μ̂_k| / (σ̂_k + ε)
+
+Alert if: max_k(z_k) > τ   (τ = 3.0 recommended)</div>
+<pre><code>import torch
+import torch.nn as nn
+import numpy as np
+
+class BayesianPINN(nn.Module):
+    """
+    MC Dropout PINN. Dropout stays ON during inference — each forward
+    pass samples a different sub-network, giving a distribution over predictions.
+    """
+    def __init__(self, in_dim=2, out_dim=4, hidden=64, n_layers=5, p_drop=0.1):
+        super().__init__()
+        layers = [nn.Linear(in_dim, hidden), nn.Tanh(), nn.Dropout(p_drop)]
+        for _ in range(n_layers - 1):
+            layers += [nn.Linear(hidden, hidden), nn.Tanh(), nn.Dropout(p_drop)]
+        layers.append(nn.Linear(hidden, out_dim))
+        self.net = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.net(x)
+
+    def predict_distribution(self, x: torch.Tensor,
+                              n_samples: int = 100) -> tuple:
+        """
+        Run n_samples stochastic passes with dropout active.
+        Returns (mean, std) for each output dimension.
+        """
+        self.train()  # keeps Dropout active
+        with torch.no_grad():
+            samples = torch.stack([self.forward(x) for _ in range(n_samples)])
+        return samples.mean(0), samples.std(0)
+
+
+def bayesian_detect(model: BayesianPINN,
+                     observed_features: np.ndarray,
+                     sigma_threshold: float = 3.0) -> dict:
+    """
+    Alert only when observation is outside the 3σ prediction interval.
+    Dramatically reduces false positives from legitimate load transients.
+    """
+    x = torch.FloatTensor(observed_features[:2]).unsqueeze(0)  # (bus_norm, t_norm)
+    mu, sigma = model.predict_distribution(x, n_samples=100)
+    mu    = mu.numpy()[0]
+    sigma = sigma.numpy()[0] + 1e-8
+
+    y_obs = observed_features[2:]   # (vm, va, p, q)
+    z_scores = np.abs(y_obs - mu) / sigma
+
+    max_z    = float(z_scores.max())
+    worst_dim = ['vm_pu','va_deg','p_mw','q_mvar'][int(z_scores.argmax())]
+
+    return {
+        'is_anomaly':   max_z > sigma_threshold,
+        'anomaly_score':min(1.0, max_z / sigma_threshold),
+        'z_scores':     z_scores.tolist(),
+        'prediction_mean': mu.tolist(),
+        'prediction_std':  sigma.tolist(),
+        'worst_feature':   worst_dim,
+        'explanation': (f"{worst_dim} is {max_z:.1f}σ from expected — "
+                        f"outside {sigma_threshold}σ confidence band"),
+    }</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae3">
+<h3>3. Multi-timescale detection windows</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> FDI attacks are fast — a single falsified reading. Electricity theft is slow — cumulative imbalance accumulating over minutes. A single detection window misses one or the other. Two parallel detectors — fast (3-reading, ~6s) and slow (150-reading, ~5min) — catch both attack classes. Takes an afternoon to add on top of your existing pipeline.</div>
+<pre><code>from collections import deque
+import numpy as np
+from dataclasses import dataclass
+
+@dataclass
+class MultiscaleResult:
+    fast_score:  float    # 6s window  — FDI, command injection
+    slow_score:  float    # 5min window — theft, slow manipulation
+    combined:    float
+    dominant:    str      # 'fast' | 'slow' | 'both' | 'none'
+
+class MultiscaleDetector:
+    def __init__(self, fast_thresh=0.05, slow_thresh=0.02):
+        self.fast_buf  = deque(maxlen=3)    # last 3 readings @ 2s = 6s
+        self.slow_buf  = deque(maxlen=150)  # last 150 readings @ 2s = 5 min
+        self.ft = fast_thresh
+        self.st = slow_thresh
+
+    def update(self, physics_residual_max: float,
+               energy_imbalance: float) -> MultiscaleResult:
+        self.fast_buf.append(physics_residual_max)
+        self.slow_buf.append(abs(energy_imbalance))
+
+        fast = min(1.0, np.max(list(self.fast_buf)) / self.ft)
+        slow = (min(1.0, np.percentile(list(self.slow_buf), 90) / self.st)
+                if len(self.slow_buf) > 10 else 0.0)
+
+        combined = max(fast, slow)
+        dominant = ('both'  if fast > 0.5 and slow > 0.5 else
+                    'fast'  if fast > slow else
+                    'slow'  if slow > 0.0 else 'none')
+
+        return MultiscaleResult(round(fast,3), round(slow,3),
+                                round(combined,3), dominant)</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae4">
+<h3>4. Online adaptive learning</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Indian grids have strong seasonal load patterns — summer AC peaks, festival surges, monsoon drops. A model trained in November will generate false positives by May. Online learning with exponential forgetting keeps the model current automatically without full retraining.</div>
+<pre><code>import torch, numpy as np
+from collections import deque
+
+class OnlineAdaptivePINN:
+    """
+    Continually fine-tunes PINN on recent confirmed-normal data.
+    Exponential forgetting weights recent observations more heavily.
+    Update runs every `interval` readings in background.
+    """
+    def __init__(self, model, base_lr=1e-5, forget=0.995, interval=100):
+        self.model = model
+        self.opt   = torch.optim.Adam(model.parameters(), lr=base_lr)
+        self.forget = forget
+        self.interval = interval
+        self.buf = deque(maxlen=500)
+        self.step = 0
+
+    def ingest(self, features: np.ndarray):
+        """Call with every confirmed-normal reading."""
+        self.buf.append(features)
+        self.step += 1
+        if self.step % self.interval == 0:
+            self._update()
+
+    def _update(self, epochs=5):
+        if len(self.buf) < 50:
+            return
+        data = np.array(list(self.buf))
+        n = len(data)
+        # Exponential weights: most recent sample has weight 1.0
+        w = np.array([self.forget ** (n - 1 - i) for i in range(n)])
+        w /= w.sum()
+        self.model.train()
+        for _ in range(epochs):
+            idx = np.random.choice(n, size=min(64, n), p=w, replace=True)
+            batch = torch.FloatTensor(data[idx])
+            pred  = self.model(batch[:, :2])
+            loss  = torch.mean((pred - batch[:, 2:]) ** 2)
+            self.opt.zero_grad(); loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+            self.opt.step()
+        self.model.eval()</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae5">
+<h3>5. Wavelet decomposition for smart meter theft</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Time-domain consumption curves look similar for legitimate and bypassed meters at coarse resolution. DWT (Discrete Wavelet Transform) reveals high-frequency components that diverge — a meter shunt or CT bypass leaves frequency-domain signatures invisible to time-domain analysis. Improves theft F1 by ~12% over raw time-series methods.</div>
+<pre><code># pip install PyWavelets
+import pywt, numpy as np
+from scipy.stats import entropy
+
+def wavelet_features(series: np.ndarray, wavelet='db4', levels=4) -> np.ndarray:
+    """
+    Decompose consumption time-series. Tampered meters have anomalous
+    energy distribution across frequency bands.
+    """
+    coeffs = pywt.wavedec(series, wavelet, level=levels)
+    feats = []
+    for c in coeffs:
+        feats += [np.mean(c), np.std(c), np.sum(c**2),
+                  float(entropy(np.abs(c)+1e-8)), np.max(np.abs(c))]
+    total_e = sum(np.sum(c**2) for c in coeffs) + 1e-8
+    feats  += [np.sum(c**2)/total_e for c in coeffs]   # band energy ratios
+    return np.array(feats)
+
+class WaveletTheftDetector:
+    def __init__(self):
+        from sklearn.ensemble import IsolationForest
+        self.iso = IsolationForest(contamination=0.05, n_estimators=300, random_state=42)
+        self.fitted = False
+
+    def fit(self, normal_series: list):
+        X = np.array([wavelet_features(s) for s in normal_series])
+        self.iso.fit(X); self.fitted = True
+
+    def detect(self, series: np.ndarray) -> dict:
+        f = wavelet_features(series).reshape(1,-1)
+        score = float(self.iso.decision_function(f)[0])
+        return {'is_tampered': score < -0.05,
+                'anomaly_score': min(1.0, max(0.0, -score + 0.5))}</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae6">
+<h3>6. Voltage stability index (L-index)</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> AEthelred currently only detects attacks. Grid operators also need to know when the grid is approaching voltage collapse — a coordinated attack can deliberately trigger this. L-index (0=stable, 1=collapse) is computed from data AEthelred already has. Makes Nyther Sentinel operationally useful to grid operators, dramatically increasing DISCOM pilot likelihood.</div>
+<pre><code>import numpy as np
+
+def l_index(vm_pu, va_deg, Y_bus, load_buses: list) -> np.ndarray:
+    """
+    Voltage stability L-index per load bus.
+    L → 0: stable.  L → 1: voltage collapse imminent.
+    > 0.5: serious warning for Indian distribution networks.
+    """
+    va   = np.deg2rad(va_deg)
+    V    = vm_pu * np.exp(1j * va)
+    n    = len(vm_pu)
+    gen  = [i for i in range(n) if i not in load_buses]
+
+    Y_LL = Y_bus[np.ix_(load_buses, load_buses)]
+    Y_LG = Y_bus[np.ix_(load_buses, gen)]
+    try:
+        F = -np.linalg.solve(Y_LL, Y_LG)
+    except np.linalg.LinAlgError:
+        return np.zeros(len(load_buses))
+
+    V_L, V_G = V[load_buses], V[gen]
+    L = np.array([abs(1 + F[j] @ V_G / (V_L[j] + 1e-10))
+                  for j in range(len(load_buses))])
+    return L
+
+def stability_alert(L: np.ndarray) -> dict:
+    mx = float(L.max()); bus = int(L.argmax())
+    status = 'STABLE' if mx < 0.4 else 'WARNING' if mx < 0.7 else 'CRITICAL'
+    return {'max_l': round(mx,4), 'critical_bus': bus, 'status': status,
+            'action': 'No action' if mx < 0.4
+                      else f'Reduce load at bus {bus}' if mx < 0.7
+                      else 'IMMEDIATE load shedding'}</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae7">
+<h3>7. Frequency / ROCOF monitoring</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> AEthelred monitors V, P, Q. System frequency (50 Hz) is the 4th physics dimension. ROCOF (Rate of Change of Frequency) detects islanding — a grid segment deliberately disconnected by an attacker. Under-frequency signals coordinated load manipulation. Adds with ~50 lines of code.</div>
+<pre><code>from collections import deque
+import numpy as np
+
+class FrequencyMonitor:
+    NOMINAL = 50.0
+    F_TOL   = 0.2    # ±0.2 Hz — POSOCO normal range
+    ROCOF_T = 0.5    # Hz/s islanding threshold
+    UF_TRIP = 49.0   # Indian load-shedding relay trigger
+
+    def __init__(self, sample_rate=10):
+        self.buf = deque(maxlen=50)
+        self.dt  = 1.0 / sample_rate
+
+    def update(self, freq_hz: float) -> dict:
+        self.buf.append(freq_hz)
+        dev   = freq_hz - self.NOMINAL
+        rocof = ((self.buf[-1] - self.buf[-2]) / self.dt
+                 if len(self.buf) >= 2 else 0.0)
+
+        alerts = []
+        if abs(dev) > self.F_TOL:
+            alerts.append(f"Freq deviation {freq_hz:.3f} Hz ({dev:+.3f} Hz)")
+        if abs(rocof) > self.ROCOF_T:
+            alerts.append(f"High ROCOF {rocof:.3f} Hz/s — islanding suspected")
+        if freq_hz < self.UF_TRIP:
+            alerts.append(f"CRITICAL under-frequency {freq_hz:.3f} Hz")
+
+        score = min(1.0,
+            abs(dev)/self.F_TOL * 0.4 + abs(rocof)/self.ROCOF_T * 0.6)
+        return {'freq_hz': round(freq_hz,4), 'dev': round(dev,4),
+                'rocof': round(rocof,4), 'score': round(score,3),
+                'alerts': alerts, 'islanding': abs(rocof) > self.ROCOF_T}</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae8">
+<h3>8. Adversarial PINN hardening</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> A sophisticated attacker who knows you use a PINN can craft FDI inputs that satisfy the physics constraints while still causing operational damage. Adversarial training — exposing the PINN to such crafted attacks during training — is what separates a research prototype from a genuinely deployable product. This upgrade makes AEthelred robust against an attacker who has reverse-engineered your detection approach.</div>
+<pre><code>import torch, torch.nn as nn
+
+class AdversarialFDIGenerator:
+    """
+    PGD attack against the PINN — finds sensor perturbations that
+    maximise damage while minimising PINN-detectable residual.
+    """
+    def __init__(self, eps=0.02, steps=10, lr=None):
+        self.eps   = eps
+        self.steps = steps
+        self.lr    = lr or eps / steps
+
+    def generate(self, model, clean_x: torch.Tensor) -> torch.Tensor:
+        delta = torch.zeros_like(clean_x, requires_grad=True)
+        opt   = torch.optim.Adam([delta], lr=self.lr)
+        for _ in range(self.steps):
+            perturbed  = clean_x + delta
+            pred       = model(perturbed[:, :2])
+            # Minimise PINN residual (evade detection)
+            evasion    = torch.mean((pred - perturbed[:, 2:]) ** 2)
+            # Maximise voltage deviation at target bus (cause damage)
+            damage     = -torch.mean((perturbed[:, 2] - 1.0) ** 2)
+            loss       = evasion - 0.1 * damage
+            opt.zero_grad(); loss.backward(); opt.step()
+            with torch.no_grad():
+                delta.clamp_(-self.eps, self.eps)
+        return (clean_x + delta.detach())
+
+
+def adversarial_train_step(model, clean_batch, adv_gen,
+                            optimizer, lambda_adv=0.3):
+    pred_clean = model(clean_batch[:, :2])
+    loss_clean = nn.MSELoss()(pred_clean, clean_batch[:, 2:])
+
+    adv_batch  = adv_gen.generate(model, clean_batch.detach())
+    pred_adv   = model(adv_batch[:, :2])
+    loss_adv   = nn.MSELoss()(pred_adv, clean_batch[:, 2:])
+
+    total = (1 - lambda_adv) * loss_clean + lambda_adv * loss_adv
+    optimizer.zero_grad(); total.backward(); optimizer.step()
+    return total.item()</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae9">
+<h3>9. Causal root-cause layer</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Without root-cause analysis, every anomaly triggers a cybersecurity response — expensive and disruptive when the actual cause is a hardware sensor failure. Granger causality identifies whether the anomaly at bus 7 was CAUSED by a prior event at bus 3 (attack propagation pattern) or appeared spontaneously (hardware fault).</div>
+<pre><code>import numpy as np
+from statsmodels.tsa.stattools import grangercausalitytests
+from scipy import stats
+
+class CausalRootCause:
+    """
+    Distinguishes cyber attack / physical fault / sensor hardware failure.
+    Uses: spatial correlation, Granger causality, isolation test.
+    """
+    def analyze(self, residuals_T_N: np.ndarray,
+                 adjacency: np.ndarray,
+                 flagged: list) -> dict:
+        if not flagged:
+            return {'cause': 'NONE', 'confidence': 1.0}
+
+        spatial_corr = self._spatial(residuals_T_N, flagged, adjacency)
+        causal_src   = self._granger_source(residuals_T_N, flagged)
+        isolated     = (len(flagged) == 1 and spatial_corr < 0.3)
+
+        if isolated:
+            cause, conf = 'SENSOR_FAULT', 0.75
+        elif causal_src is not None and spatial_corr > 0.5:
+            cause, conf = 'CYBER_ATTACK', 0.88
+        elif spatial_corr > 0.6:
+            cause, conf = 'PHYSICAL_FAULT', 0.70
+        else:
+            cause, conf = 'UNKNOWN', 0.50
+
+        actions = {
+            'CYBER_ATTACK':   'Escalate to SOC. Isolate affected buses.',
+            'SENSOR_FAULT':   'Dispatch maintenance. Do NOT isolate buses.',
+            'PHYSICAL_FAULT': 'Alert grid operator. Check physical equipment.',
+            'UNKNOWN':        'Monitor closely. Request manual inspection.',
+        }
+        return {'cause': cause, 'confidence': conf,
+                'causal_source_bus': causal_src,
+                'spatial_correlation': round(spatial_corr, 3),
+                'action': actions[cause]}
+
+    def _spatial(self, R, buses, A):
+        cors = []
+        for b in buses:
+            for nb in np.where(A[b])[0]:
+                if len(R) > 5:
+                    r, _ = stats.pearsonr(R[:, b], R[:, nb])
+                    cors.append(abs(r))
+        return np.mean(cors) if cors else 0.0
+
+    def _granger_source(self, R, buses, maxlag=3):
+        if len(buses) < 2 or len(R) < 20:
+            return None
+        counts = {b: 0 for b in buses}
+        for eff in buses:
+            for cau in buses:
+                if cau == eff: continue
+                try:
+                    res = grangercausalitytests(
+                        np.c_[R[:, eff], R[:, cau]], maxlag, verbose=False)
+                    p = min(res[l][0]['ssr_ftest'][1] for l in range(1, maxlag+1))
+                    if p < 0.05: counts[cau] += 1
+                except Exception: pass
+        best = max(counts, key=counts.get)
+        return best if counts[best] > 0 else None</code></pre>
+</div>
+
+<div class="imp-card ae" id="ae10">
+<h3>10. Transfer learning — IEEE bus → Indian grid</h3>
+<div class="imp-meta">
+  <span class="tag tag-ae">AEthelred</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> You don't have Indian grid data yet. Transfer learning lets you pretrain on freely available IEEE test networks (which share universal power flow physics), then fine-tune on just ~5,000 samples from a real Indian DISCOM feeder. Without this, production deployment would require 50,000+ samples to train from scratch.</div>
+<pre><code>import torch, torch.nn as nn
+
+def freeze_physics_layers(model, freeze_ratio=0.6):
+    """
+    Early PINN layers encode universal physics (identical across grids).
+    Late layers encode grid-specific topology patterns.
+    Freeze early layers, fine-tune late layers on Indian grid data.
+    """
+    params = list(model.parameters())
+    cutoff = int(len(params) * freeze_ratio)
+    for i, p in enumerate(params):
+        p.requires_grad = (i >= cutoff)
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Trainable params: {trainable:,} / {sum(p.numel() for p in model.parameters()):,}")
+    return model
+
+
+def fine_tune(pretrained, indian_data: list, epochs=500, lr=5e-5):
+    """
+    Fine-tune on small Indian grid dataset.
+    Low LR + frozen early layers = preserves physics, adapts to local topology.
+    """
+    model = freeze_physics_layers(pretrained, 0.6)
+    opt   = torch.optim.Adam(
+        filter(lambda p: p.requires_grad, model.parameters()), lr=lr)
+    data  = torch.FloatTensor(indian_data)
+
+    for epoch in range(epochs):
+        perm = torch.randperm(len(data))
+        loss_total = 0.0
+        for i in range(0, len(data), 32):
+            batch = data[perm[i:i+32]]
+            pred  = model(batch[:, :2])
+            loss  = nn.MSELoss()(pred, batch[:, 2:])
+            opt.zero_grad(); loss.backward(); opt.step()
+            loss_total += loss.item()
+        if epoch % 100 == 0:
+            print(f"Fine-tune epoch {epoch}: loss={loss_total:.6f}")
+    return model</code></pre>
+</div>
+
+<!-- ============================================================ -->
+<!--  DVVALIN SECTION                                             -->
+<!-- ============================================================ -->
+<div class="section-banner dv">
+  <div class="section-icon icon-dv">D</div>
+  <div>
+    <h2>Dvvalin — SCADA Network IDS</h2>
+    <p>9 improvements — protocol coverage, behavioral intelligence, deception, and forensics</p>
+  </div>
+</div>
+
+<div class="imp-card dv" id="dv1">
+<h3>11. IEC-61850 + DNP3 + OPC-UA protocol support</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Indian substations use IEC-61850 (GOOSE/MMS) for protection, DNP3 for legacy RTUs, and OPC-UA for modern SCADA. Modbus-only Dvvalin covers ~20% of real substation traffic. No serious DISCOM will deploy a system that monitors only one of their protocols.</div>
+<pre><code>import struct, time
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class IndustrialPacket:
+    timestamp:     float
+    protocol:      str    # 'MODBUS' | 'IEC61850_GOOSE' | 'DNP3' | 'OPCUA'
+    src_ip:        str
+    dst_ip:        str
+    function_code: Optional[int]
+    device_id:     Optional[int]
+    is_write:      bool
+    raw:           bytes
+
+class DNP3Parser:
+    PORT = 20000
+    START_BYTES = 0x0564
+    # Codes that modify physical state — always flag
+    DANGEROUS = {3, 4, 13, 14}   # SELECT, OPERATE, COLD/WARM RESTART
+
+    def parse(self, payload: bytes, src: str, dst: str) -> Optional[IndustrialPacket]:
+        if len(payload) < 13: return None
+        if struct.unpack('>H', payload[0:2])[0] != self.START_BYTES: return None
+        dest = struct.unpack('<H', payload[4:6])[0]
+        fc   = payload[12] & 0x7F
+        return IndustrialPacket(time.time(), 'DNP3', src, dst, fc, dest,
+                                fc in self.DANGEROUS, payload)
+
+class IEC61850GooseParser:
+    ETHERTYPE = 0x88B8  # IEC 61850 GOOSE
+
+    def parse(self, frame: bytes, src: str) -> Optional[IndustrialPacket]:
+        if len(frame) < 14: return None
+        et = struct.unpack('>H', frame[12:14])[0]
+        if et != self.ETHERTYPE: return None
+        # GOOSE is always a write (control/protection action)
+        return IndustrialPacket(time.time(), 'IEC61850_GOOSE', src, '',
+                                None, None, True, frame)
+
+class OPCUAMonitor:
+    PORT = 4840
+
+    def check_session(self, pkt_size: int, is_new_session: bool,
+                       session_duration_s: float, cert_hash: str,
+                       known_certs: set) -> dict:
+        alerts = []
+        if cert_hash not in known_certs:
+            alerts.append(f"Unknown TLS certificate: {cert_hash[:16]}")
+        if is_new_session and session_duration_s < 1.0:
+            alerts.append("Very short OPC-UA session — scanning?")
+        if pkt_size > 8192:
+            alerts.append("Large OPC-UA payload — possible bulk write attack")
+        return {'alerts': alerts, 'suspicious': bool(alerts)}
+
+class UnifiedProtocolDetector:
+    def __init__(self):
+        self.dnp3 = DNP3Parser()
+        self.goose = IEC61850GooseParser()
+        self.opcua = OPCUAMonitor()
+        self.known_certs: set = set()
+
+    def parse(self, raw: bytes, src_ip: str, dst_ip: str,
+               dst_port: int) -> Optional[IndustrialPacket]:
+        if dst_port == 502:     return self._parse_modbus(raw, src_ip, dst_ip)
+        if dst_port == 20000:   return self.dnp3.parse(raw, src_ip, dst_ip)
+        return self.goose.parse(raw, src_ip)   # L2 broadcast
+
+    def _parse_modbus(self, b, s, d): pass  # existing parser</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv2">
+<h3>12. Device fingerprinting by timing jitter</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Every PLC has a unique hardware fingerprint in its response timing — clock oscillator tolerances, firmware version, CPU speed. An attacker spoofing device ID 5 will have a different timing distribution than the real device 5. Catches impersonation attacks invisible to protocol-level analysis.</div>
+<pre><code>import numpy as np
+from scipy.stats import ks_2samp, norm
+from collections import defaultdict
+
+class DeviceTimingFingerprinter:
+    def __init__(self, min_samples=50):
+        self.history  = defaultdict(list)
+        self.profiles = {}   # device_id -> (mu_ms, sigma_ms)
+        self.min_n    = min_samples
+
+    def record(self, device_id: int, rtt_ms: float):
+        self.history[device_id].append(rtt_ms)
+        if len(self.history[device_id]) == self.min_n:
+            arr = np.array(self.history[device_id])
+            self.profiles[device_id] = (arr.mean(), arr.std() + 0.001)
+
+    def verify(self, device_id: int, recent_rtts: list) -> dict:
+        if device_id not in self.profiles:
+            return {'verified': None, 'reason': 'No baseline yet'}
+        mu, sigma = self.profiles[device_id]
+        recent    = np.array(recent_rtts)
+        # KS test: does recent batch come from the fingerprint distribution?
+        ks, p = ks_2samp(np.array(self.history[device_id]), recent)
+        spoofed = (p < 0.01)
+        return {
+            'verified':        not spoofed,
+            'ks_stat':         round(ks, 4),
+            'p_value':         round(p, 4),
+            'baseline_mean_ms': round(mu, 2),
+            'observed_mean_ms': round(recent.mean(), 2),
+            'is_spoofed':      spoofed,
+            'reason':          'Timing mismatch — possible device impersonation'
+                               if spoofed else 'Timing matches fingerprint',
+        }</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv3">
+<h3>13. Graph behavioral model (GNN lateral movement)</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Current Dvvalin analyses each device in isolation. A GNN models the entire communication graph — devices as nodes, message exchanges as edges. Lateral movement (RTU-1 → switch → RTU-5 → HMI) creates new edges never seen in normal operation. Based on FLASH-IDS, IEEE S&P 2024, from your research docs.</div>
+<pre><code>import torch
+from torch_geometric.nn import SAGEConv
+from torch_geometric.data import Data
+from collections import defaultdict
+import numpy as np
+
+class CommGraphBuilder:
+    def __init__(self):
+        self.nodes = {}        # ip:port -> node_id
+        self.edge_counts = defaultdict(int)
+        self.nid = 0
+
+    def _nid(self, key):
+        if key not in self.nodes:
+            self.nodes[key] = self.nid; self.nid += 1
+        return self.nodes[key]
+
+    def add(self, src: str, dst: str):
+        s, d = self._nid(src), self._nid(dst)
+        self.edge_counts[(s, d)] += 1
+
+    def to_pyg(self, node_feats: np.ndarray) -> Data:
+        edges = list(self.edge_counts.keys())
+        if not edges: return None
+        src, dst  = zip(*edges)
+        ei = torch.tensor([list(src), list(dst)], dtype=torch.long)
+        x  = torch.tensor(node_feats[:self.nid], dtype=torch.float)
+        return Data(x=x, edge_index=ei)
+
+    def is_new_edge(self, src: str, dst: str) -> bool:
+        s = self.nodes.get(src); d = self.nodes.get(dst)
+        if s is None or d is None: return True
+        return self.edge_counts[(s, d)] == 0
+
+
+class CommGNN(torch.nn.Module):
+    def __init__(self, in_ch=8, hid=32, out=16):
+        super().__init__()
+        self.c1 = SAGEConv(in_ch, hid)
+        self.c2 = SAGEConv(hid, out)
+
+    def forward(self, x, ei):
+        import torch.nn.functional as F
+        return self.c2(F.relu(self.c1(x, ei)), ei)
+
+    def edge_score(self, h, ei):
+        import torch.nn.functional as F
+        src, dst = h[ei[0]], h[ei[1]]
+        return 1 - F.cosine_similarity(src, dst)</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv4">
+<h3>14. Replay attack detection</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Record a legitimate "Open Breaker" command, replay it later. Trivially easy attack, extremely damaging. Detection is equally easy: payload hash cache + sequence number validation + timing analysis. Two hours to implement.</div>
+<pre><code>import hashlib, time
+from collections import deque, defaultdict
+
+class ReplayDetector:
+    def __init__(self, window_s=300):
+        self.hashes   = deque(maxlen=5000)
+        self.seqs     = {}                      # device_id -> last seq_num
+        self.cmd_ts   = defaultdict(list)
+        self.window   = window_s
+
+    def check(self, device_id: int, seq: int,
+               payload: bytes, cmd_type: str) -> dict:
+        alerts = []
+
+        # 1. Exact payload duplicate
+        h = hashlib.sha256(payload).hexdigest()
+        if h in self.hashes:
+            alerts.append("EXACT REPLAY: payload seen before")
+        self.hashes.append(h)
+
+        # 2. Sequence number regression
+        if device_id in self.seqs:
+            if seq < self.seqs[device_id]:
+                alerts.append(f"Seq regression {seq} < {self.seqs[device_id]}")
+        self.seqs[device_id] = seq
+
+        # 3. Scripted-replay timing (suspiciously uniform IAT)
+        now = time.time()
+        self.cmd_ts[cmd_type] = [t for t in self.cmd_ts[cmd_type]
+                                   if now - t < self.window]
+        self.cmd_ts[cmd_type].append(now)
+        if len(self.cmd_ts[cmd_type]) > 6:
+            iats = [self.cmd_ts[cmd_type][i+1] - self.cmd_ts[cmd_type][i]
+                    for i in range(len(self.cmd_ts[cmd_type])-1)]
+            if max(iats) - min(iats) < 0.01:
+                alerts.append("Uniform command timing — possible scripted replay")
+
+        return {'is_replay': bool(alerts), 'alerts': alerts,
+                'hash': h[:16]}</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv5">
+<h3>15. Honeypot PLC decoys (Conpot)</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Zero false positives. No legitimate SCADA system ever talks to a honeypot PLC. Any communication = attacker who has performed network reconnaissance. Gives 30–60 minutes early warning before actual exploitation. Deploy with <code>docker run -it --net=host honeynet/conpot</code> in an afternoon.</div>
+<pre><code>import asyncio, json, time
+from pathlib import Path
+
+CONPOT_LOG = "/var/log/conpot/conpot.log"
+
+class HoneypotMonitor:
+    def __init__(self, honeypot_ips: list):
+        self.honeypot_ips = set(honeypot_ips)
+
+    def is_honeypot_target(self, dst_ip: str) -> bool:
+        """Call in Dvvalin's packet loop — instant zero-FP detection."""
+        return dst_ip in self.honeypot_ips
+
+    def make_alert(self, src_ip: str, protocol: str, cmd: str) -> dict:
+        return {
+            'timestamp':     time.time(),
+            'source':        'HONEYPOT_PLC',
+            'threat_level':  'CRITICAL',
+            'anomaly_score': 1.0,     # always 1.0 — honeypot = definite attacker
+            'attacker_ip':   src_ip,
+            'protocol':      protocol,
+            'command':       cmd,
+            'explanation':   ('Attacker accessed honeypot PLC. '
+                              'No legitimate system is configured to talk to this device. '
+                              'Reconnaissance phase confirmed.'),
+            'actions': [
+                f'Block {src_ip} immediately on OT firewall',
+                'Enable full PCAP on all OT VLANs',
+                'Check lateral movement from attacker IP to real PLCs',
+                'Alert CERT-In / NCIIPC',
+            ],
+        }
+
+    async def tail_log(self, callback):
+        if not Path(CONPOT_LOG).exists():
+            print("Conpot not running — honeypot monitoring inactive")
+            return
+        with open(CONPOT_LOG) as f:
+            f.seek(0, 2)
+            while True:
+                line = f.readline()
+                if line:
+                    try:
+                        e = json.loads(line)
+                        await callback(self.make_alert(
+                            e.get('remote','?'),
+                            e.get('session',{}).get('protocol','?'),
+                            str(e.get('request','?'))
+                        ))
+                    except Exception: pass
+                else:
+                    await asyncio.sleep(0.1)</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv6">
+<h3>16. MITRE ATT&amp;CK for ICS — auto-mapping</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Every alert must map to the MITRE ATT&amp;CK for ICS matrix automatically. This is mandatory for government scheme submissions and makes every alert audit-ready. Takes 2 hours to implement, provides enormous credibility.</div>
+<pre><code>MITRE_ICS = {
+    'FDI':                    ('Impact',              'T0832', 'Manipulation of View'),
+    'SCADA_COMMAND_INJECTION':('Impair Process Control','T0855','Unauthorized Command Message'),
+    'DEVICE_SPOOFING':        ('Lateral Movement',    'T0886', 'Remote Services'),
+    'LOAD_MANIPULATION':      ('Impact',              'T0831', 'Manipulation of Control'),
+    'REPLAY_ATTACK':          ('Lateral Movement',    'T0867', 'Lateral Tool Transfer'),
+    'PROTOCOL_ANOMALY':       ('Discovery',           'T0842', 'Network Sniffing'),
+    'HONEYPOT_TRIGGERED':     ('Discovery',           'T0846', 'Remote System Discovery'),
+    'UNAUTHORIZED_WRITE':     ('Impair Process Control','T0855','Unauthorized Command Message'),
+    'REGISTER_SCAN':          ('Discovery',           'T0843', 'Program Upload'),
+    'BEHAVIORAL_ANOMALY':     ('Evasion',             'T0851', 'Rootkit'),
+    'THEFT':                  ('Collection',          'T0852', 'Screen Capture'),
+    'TIMING_ANOMALY':         ('Evasion',             'T0858', 'Change Credentials'),
+    'MITM':                   ('Collection',          'T0830', 'Adversary-in-the-Middle'),
+}
+KILL_CHAIN = {
+    'Initial Access':'reconnaissance','Execution':'exploitation',
+    'Lateral Movement':'lateral-movement','Discovery':'reconnaissance',
+    'Collection':'collection','Evasion':'evasion',
+    'Impair Process Control':'impact','Impact':'impact',
+}
+
+def mitre_map(detection_type: str) -> dict:
+    tactic, tid, tname = MITRE_ICS.get(
+        detection_type, ('Unknown','T0000','Unknown'))
+    return {
+        'tactic': tactic, 'technique_id': tid, 'technique': tname,
+        'url': f'https://attack.mitre.org/techniques/{tid}/',
+        'kill_chain': KILL_CHAIN.get(tactic, 'unknown'),
+    }</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv7">
+<h3>17. Protocol fuzzing defense (reconnaissance detection)</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Attackers probe before exploiting — sending malformed packets to discover firmware versions and trigger error responses. Catching the probe gives 30–60 minutes early warning before the actual exploit. Very easy to implement.</div>
+<pre><code>import struct
+from dataclasses import dataclass
+
+VALID_FC = {1,2,3,4,5,6,7,8,11,12,15,16,17,20,21,43}
+
+@dataclass
+class FuzzAlert:
+    src_ip: str; probe_type: str; detail: str; confidence: float
+
+def check_modbus_fuzz(payload: bytes, src_ip: str) -> list:
+    alerts = []
+    if len(payload) < 6:
+        return [FuzzAlert(src_ip,'SHORT_FRAME','Packet < 6 bytes',0.8)]
+    try:
+        protocol_id = struct.unpack('>H', payload[2:4])[0]
+        length_decl = struct.unpack('>H', payload[4:6])[0]
+        unit_id     = payload[6] if len(payload)>6 else 0
+        fc          = payload[7] if len(payload)>7 else 0
+
+        if protocol_id != 0:
+            alerts.append(FuzzAlert(src_ip,'PROTO_ID_PROBE',
+                f'Protocol ID={protocol_id} (must be 0) — firmware probe',0.9))
+        if fc not in VALID_FC and fc > 0:
+            alerts.append(FuzzAlert(src_ip,'UNKNOWN_FC',
+                f'FC={fc} undocumented — exploit probe',0.85))
+        if unit_id == 0xFF:
+            alerts.append(FuzzAlert(src_ip,'BROADCAST_PROBE',
+                'Broadcast unit ID — device enumeration',0.7))
+        actual = len(payload) - 6
+        if length_decl != actual:
+            alerts.append(FuzzAlert(src_ip,'LENGTH_MISMATCH',
+                f'Declared {length_decl} != actual {actual}',0.75))
+    except Exception as e:
+        alerts.append(FuzzAlert(src_ip,'PARSE_ERROR',str(e),0.6))
+    return alerts</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv8">
+<h3>18. Man-in-the-middle detection via RTT CUSUM</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> ARP spoofing or rogue switch inserts a MITM proxy, adding 0.5–3ms latency. CUSUM (Cumulative Sum) change detection on per-session RTTs catches this step-change within seconds of it starting. Validated in academic ICS network security literature.</div>
+<pre><code>import numpy as np
+from collections import defaultdict, deque
+
+class RTTCusumMITM:
+    """
+    CUSUM change detection on round-trip times per SCADA session.
+    k = allowance (half minimum detectable shift in ms)
+    h = decision boundary (cumulative sum threshold)
+    """
+    def __init__(self, k=1.0, h=5.0, baseline_n=30):
+        self.k  = k; self.h = h; self.n0 = baseline_n
+        self.hist    = defaultdict(lambda: deque(maxlen=200))
+        self.base    = {}     # session -> (mu, sigma)
+        self.cusum_p = defaultdict(float)
+        self.cusum_n = defaultdict(float)
+
+    def update(self, session: str, rtt_ms: float) -> dict:
+        self.hist[session].append(rtt_ms)
+        h = list(self.hist[session])
+
+        if len(h) == self.n0:
+            self.base[session] = (np.mean(h), max(np.std(h), 0.1))
+
+        if session not in self.base:
+            return {'mitm': False, 'status': 'collecting baseline'}
+
+        mu, sig = self.base[session]
+        z = (rtt_ms - mu) / sig   # normalised deviation
+
+        self.cusum_p[session] = max(0, self.cusum_p[session] + z - self.k)
+        self.cusum_n[session] = min(0, self.cusum_n[session] + z + self.k)
+
+        alarm = (self.cusum_p[session] > self.h or
+                 abs(self.cusum_n[session]) > self.h)
+        if alarm:
+            self.cusum_p[session] = 0; self.cusum_n[session] = 0
+
+        return {
+            'mitm':         alarm,
+            'rtt_ms':       round(rtt_ms, 3),
+            'baseline_ms':  round(mu, 3),
+            'cusum_p':      round(self.cusum_p[session], 2),
+            'explanation':  (f'RTT {rtt_ms:.1f}ms vs baseline {mu:.1f}ms — '
+                             'ARP spoofing / rogue switch suspected') if alarm else 'Normal',
+        }</code></pre>
+</div>
+
+<div class="imp-card dv" id="dv9">
+<h3>19. Encrypted OT traffic anomaly detection</h3>
+<div class="imp-meta">
+  <span class="tag tag-dv">Dvvalin</span>
+  <span class="tag tag-later">Post-funding</span>
+  <span class="tag">Impact ★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Modern OPC-UA and DNP3 Secure Auth use TLS. You can't decrypt it, but you CAN detect anomalies from metadata: packet size distributions, inter-arrival timing, certificate anomalies, connection frequency. C2 traffic and exfiltration have distinctive patterns even when encrypted.</div>
+<pre><code>import numpy as np
+from collections import defaultdict
+from scipy.stats import ks_2samp
+
+class EncryptedOTAnalyzer:
+    def __init__(self):
+        self.size_history = defaultdict(list)
+        self.known_certs  = set()
+
+    def register_cert(self, cert_sha256: str):
+        self.known_certs.add(cert_sha256)
+
+    def analyze(self, session: str, pkt_sizes: list,
+                 timestamps: list, cert_hash: str) -> dict:
+        alerts = []
+        key = session
+
+        # Certificate check
+        if cert_hash not in self.known_certs:
+            alerts.append(f"Unknown TLS certificate: {cert_hash[:16]}")
+
+        # Packet size distribution shift (KS test)
+        if key in self.size_history and len(pkt_sizes) > 10:
+            ks, p = ks_2samp(self.size_history[key][-200:], pkt_sizes)
+            if p < 0.01:
+                alerts.append(f"Packet size distribution shift (p={p:.4f}) — exfil?")
+        self.size_history[key].extend(pkt_sizes)
+
+        # Beacon detection — uniform IAT = C2 heartbeat
+        if len(timestamps) > 10:
+            iats = np.diff(timestamps)
+            if iats.std() < 0.05 * iats.mean():
+                alerts.append("Uniform IAT — C2 beacon suspected")
+
+        # Large transfer
+        total_kb = sum(pkt_sizes) / 1024
+        if total_kb > 1000:
+            alerts.append(f"Large encrypted transfer {total_kb:.0f} KB")
+
+        return {'alerts': alerts, 'suspicious': bool(alerts),
+                'score': min(1.0, len(alerts) * 0.4)}</code></pre>
+</div>
+
+<!-- ============================================================ -->
+<!--  SYSTEM / VALKYRIE SECTION                                   -->
+<!-- ============================================================ -->
+<div class="section-banner sys">
+  <div class="section-icon icon-sys">V</div>
+  <div>
+    <h2>System / Valkyrie — Cross-Cutting Improvements</h2>
+    <p>8 improvements — explainability, intelligence, deception, compliance, and continuous validation</p>
+  </div>
+</div>
+
+<div class="imp-card sys" id="sys1">
+<h3>20. Explainable AI — SHAP waterfall per alert</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> "Anomaly score: 0.87" is useless to a grid operator. "Bus 7 voltage deviation contributed 62% of the alert score" is actionable. SHAP values give this breakdown automatically for every alert. Required for any serious government evaluation. Also the single best demo moment — VCs understand causality.</div>
+<pre><code># pip install shap
+import shap
+import numpy as np
+
+FEATURE_NAMES = [
+    'voltage_residual', 'power_residual', 'reactive_residual', 'angle_residual',
+    'kcl_violation', 'energy_imbalance', 'modbus_fc_anomaly',
+    'device_timing_anomaly', 'new_comm_edge', 'replay_indicator',
+    'rocof_deviation', 'l_index',
+]
+
+class SHAPExplainer:
+    def __init__(self, valkyrie_score_fn):
+        """valkyrie_score_fn: callable (feature_vector) -> float in [0,1]"""
+        self.fn = valkyrie_score_fn
+        self.explainer = None
+
+    def fit(self, normal_features: np.ndarray):
+        background = shap.sample(normal_features, min(100, len(normal_features)))
+        self.explainer = shap.KernelExplainer(self.fn, background)
+
+    def explain(self, features: np.ndarray) -> dict:
+        sv = self.explainer.shap_values(features.reshape(1,-1), nsamples=200)[0]
+        total = np.sum(np.abs(sv)) + 1e-8
+        ranked = sorted(zip(FEATURE_NAMES, sv), key=lambda x: -abs(x[1]))[:4]
+        parts  = []
+        for name, val in ranked:
+            pct = abs(val)/total*100
+            parts.append(f"{name.replace('_',' ')} "
+                         f"{'raised' if val>0 else 'lowered'} score by {pct:.0f}%")
+        return {
+            'shap_values':   sv.tolist(),
+            'feature_names': FEATURE_NAMES,
+            'top_drivers': [{'feature': n, 'contribution': round(v,4),
+                             'pct': round(abs(v)/total*100,1)}
+                            for n,v in ranked],
+            'narrative':     '. '.join(parts) + '.',
+        }</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys2">
+<h3>21. Live digital twin sync (bidirectional)</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-later">Post-funding</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> AEthelred currently runs physics on simulated data. A true digital twin maintains bidirectional sync: real sensor data → twin state, twin predictions → expected sensor values. Twin divergence IS the anomaly signal. This framing is exactly what DISCOM operators understand — "your grid's digital shadow disagrees with physical sensors."</div>
+<pre><code>import asyncio, time
+import pandapower as pp
+import numpy as np
+
+class LiveDigitalTwin:
+    """
+    Continuously syncs pandapower model to real/simulated grid state.
+    Twin divergence computed every cycle = AEthelred's physics signal.
+    """
+    def __init__(self, net, update_interval_s=2.0):
+        self.net       = net
+        self.interval  = update_interval_s
+        self.last_sync = None
+        self.divergence_history = []
+
+    def sync(self, sensor_readings: dict) -> dict:
+        """
+        sensor_readings: {bus_id: {'vm_pu': float, 'p_mw': float, ...}}
+        Applies readings to network model, runs power flow,
+        computes divergence between predicted and observed.
+        """
+        # Apply observed values to slack bus as constraints
+        for bus_id, vals in sensor_readings.items():
+            if bus_id < len(self.net.bus):
+                if 'p_mw' in vals:
+                    idx = self.net.load.loc[self.net.load.bus == bus_id].index
+                    if len(idx):
+                        self.net.load.at[idx[0], 'p_mw'] = vals['p_mw']
+
+        try:
+            pp.runpp(self.net, numba=False, algorithm='bfsw')
+        except pp.LoadflowNotConverged:
+            return {'status': 'diverged', 'score': 1.0}
+
+        # Compare twin predictions against observed sensor values
+        twin_vm = self.net.res_bus['vm_pu'].values
+        obs_vm  = np.array([sensor_readings.get(i, {}).get('vm_pu', twin_vm[i])
+                             for i in range(len(twin_vm))])
+        divergence = np.abs(twin_vm - obs_vm)
+        score      = float(divergence.max())
+
+        self.divergence_history.append({'t': time.time(), 'score': score})
+        return {
+            'status':       'synced',
+            'divergence':   divergence.tolist(),
+            'max_div':      round(score, 5),
+            'twin_vm':      twin_vm.tolist(),
+            'observed_vm':  obs_vm.tolist(),
+        }</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys3">
+<h3>22. Honeypot data streams (canary sensor readings)</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Inject fake sensor data streams (canary readings) that look real but would only be queried by an attacker doing reconnaissance. Any system pulling canary data is definitionally malicious. Zero false positives, and it reveals exactly which data the attacker is interested in.</div>
+<pre><code>import hashlib, time, secrets
+
+class CanarySensorStreams:
+    """
+    Fake sensor readings injected alongside real ones.
+    Any system querying canary bus IDs = attacker.
+    Bus IDs 200-255 are canaries (well above real grid bus count).
+    """
+    CANARY_BUS_IDS = list(range(200, 210))   # reserved canary IDs
+
+    def __init__(self):
+        self.canary_tokens = {
+            bid: secrets.token_hex(8) for bid in self.CANARY_BUS_IDS}
+        self.access_log = []
+
+    def generate_canary_readings(self) -> dict:
+        """Returns fake but plausible readings for canary buses."""
+        return {
+            bid: {
+                'vm_pu':    round(0.95 + bid * 0.001, 4),
+                'p_mw':     round(0.5 + bid * 0.01, 4),
+                'token':    self.canary_tokens[bid],  # watermark
+                'bus_id':   bid,
+            }
+            for bid in self.CANARY_BUS_IDS
+        }
+
+    def check_access(self, queried_bus_id: int,
+                      requester_ip: str) -> dict:
+        """Call when any system requests a bus reading."""
+        is_canary = queried_bus_id in self.CANARY_BUS_IDS
+        if is_canary:
+            event = {
+                'timestamp':    time.time(),
+                'requester_ip': requester_ip,
+                'canary_bus':   queried_bus_id,
+                'token':        self.canary_tokens[queried_bus_id],
+                'alert':        'CANARY_ACCESSED — attacker reconnaissance confirmed',
+                'confidence':   1.0,
+            }
+            self.access_log.append(event)
+            return event
+        return {'is_canary': False}</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys4">
+<h3>23. MISP threat intelligence integration</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> NCIIPC, CERT-In, and ICS-CERT publish IOCs (Indicators of Compromise) for known ICS attacks. Pulling from MISP/STIX/TAXII feeds and matching against Dvvalin-observed IPs and patterns catches known APT tooling before it adapts. Positions Nyther Sentinel as part of India's national cyber defence ecosystem.</div>
+<pre><code># pip install pymisp requests
+import time
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class ThreatMatch:
+    ioc_type:    str    # 'ip', 'domain', 'modbus_pattern', 'dnp3_pattern'
+    ioc_value:   str
+    threat_name: str
+    source:      str    # 'NCIIPC', 'CERT-In', 'ICS-CERT', 'community'
+    confidence:  float
+    tlp:         str    # 'WHITE', 'GREEN', 'AMBER', 'RED'
+
+class ThreatIntelEngine:
+    def __init__(self, misp_url: str = None, misp_key: str = None):
+        self.ioc_db = {}    # ioc_value -> ThreatMatch
+        self.last_updated = 0
+        self.misp_url = misp_url
+        self.misp_key = misp_key
+
+    def load_static_iocs(self, ioc_list: list):
+        """Load IOCs from a local file (JSON / STIX format)."""
+        for ioc in ioc_list:
+            self.ioc_db[ioc['value']] = ThreatMatch(**ioc)
+
+    def refresh_from_misp(self):
+        """Pull latest ICS-relevant IOCs from MISP instance."""
+        if not self.misp_url:
+            return
+        try:
+            from pymisp import PyMISP
+            misp = PyMISP(self.misp_url, self.misp_key, ssl=False)
+            events = misp.search(tags=['ICS', 'SCADA', 'power-grid'],
+                                  timestamp='7d')
+            for ev in events:
+                for attr in ev.get('Event', {}).get('Attribute', []):
+                    if attr['type'] in ('ip-dst', 'domain', 'hostname'):
+                        self.ioc_db[attr['value']] = ThreatMatch(
+                            ioc_type=attr['type'],
+                            ioc_value=attr['value'],
+                            threat_name=ev.get('Event',{}).get('info','Unknown'),
+                            source='MISP',
+                            confidence=0.75,
+                            tlp='GREEN'
+                        )
+            self.last_updated = time.time()
+        except Exception as e:
+            print(f"MISP refresh failed: {e}")
+
+    def check(self, ip: str = None, domain: str = None) -> Optional[ThreatMatch]:
+        for val in filter(None, [ip, domain]):
+            if val in self.ioc_db:
+                return self.ioc_db[val]
+        return None</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys5">
+<h3>24. Automated CERT-In incident report generation</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> CERT-In mandates incident reporting within 6 hours for critical infrastructure attacks. A utility under attack must not manually write reports. Auto-generate a structured JSON + narrative PDF the moment threat level crosses HIGH. Also directly satisfies iDEX/NCIIPC scheme requirements for demonstrable compliance features.</div>
+<pre><code>import time, json
+
+def generate_incident_report(threat_event, shap_exp,
+                               mitre_map, actions) -> dict:
+    ts = lambda t: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(t))
+    return {
+        'metadata': {
+            'report_id':         f"NS-{int(threat_event.timestamp)}",
+            'generated_at':      ts(time.time()),
+            'system':            'Nyther Sentinel v2.0',
+            'cert_in_category':  'Critical Infrastructure Cybersecurity Incident',
+            'notify_within_hrs': 6,
+            'legal_basis':       'IT Act §70A, §70B; CERT-In Directions 2022',
+        },
+        'incident': {
+            'attack_type':    threat_event.attack_type,
+            'threat_level':   threat_event.threat_level.value,
+            'detected_at':    ts(threat_event.timestamp),
+            'affected_buses': [f"Bus {b}" for b in threat_event.affected_buses],
+            'confidence':     f"{threat_event.confidence*100:.0f}%",
+            'scores': {
+                'valkyrie_fusion': round(threat_event.final_score, 3),
+                'aethelred':       round(threat_event.aethelred_score, 3),
+                'dvvalin':         round(threat_event.dvvalin_score, 3),
+            },
+        },
+        'technical': {
+            'mitre_attack':   mitre_map,
+            'top_indicators': shap_exp.get('top_drivers', []),
+            'explanation':    shap_exp.get('narrative', ''),
+        },
+        'response': [
+            {'action': a['type'], 'target': a['target'],
+             'automated': a['automated'], 'executed': a['executed']}
+            for a in actions
+        ],
+        'notify': {
+            'cert_in':   'incident@cert-in.org.in',
+            'nciipc':    'incident@nciipc.gov.in',
+            'mandatory': threat_event.threat_level.value in ['HIGH','CRITICAL'],
+            'deadline':  ts(threat_event.timestamp + 6*3600),
+        },
+        'evidence_preservation': [
+            'Full network PCAP captured (tamper-evident hash)',
+            'PINN residual time-series archived',
+            'All Wazuh logs preserved',
+            'Do NOT restart affected PLCs before forensic image',
+        ],
+    }</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys6">
+<h3>25. IEC 62443 security level compliance mapping</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Government power sector tenders in India increasingly require IEC 62443 alignment. Mapping each Nyther Sentinel capability to SL 1–4 requirements makes the product procurement-ready. Takes a day to document, provides disproportionate value in formal submissions.</div>
+<pre><code>IEC_62443_MAP = {
+    # capability -> {requirement_id, SL_achieved, description}
+    'PINN_anomaly_detection': {
+        'req': 'SR 6.1', 'SL': 2,
+        'desc': 'Continuous monitoring detects physical process anomalies'
+    },
+    'network_IDS_dvvalin': {
+        'req': 'SR 6.2', 'SL': 2,
+        'desc': 'Malicious code protection via behavioral anomaly detection'
+    },
+    'honeypot_decoys': {
+        'req': 'SR 6.1', 'SL': 3,
+        'desc': 'Deception-based early warning with zero false positives'
+    },
+    'rbac': {
+        'req': 'SR 1.1', 'SL': 2,
+        'desc': 'Role-based access control for all system functions'
+    },
+    'audit_log': {
+        'req': 'SR 2.8', 'SL': 2,
+        'desc': 'Tamper-evident logging of security-relevant events'
+    },
+    'incident_report': {
+        'req': 'SR 6.1', 'SL': 2,
+        'desc': 'Automated incident documentation and notification'
+    },
+    'mitre_mapping': {
+        'req': 'SR 6.2', 'SL': 3,
+        'desc': 'Structured threat intelligence aligned with ICS-CERT taxonomy'
+    },
+    'chaos_engine': {
+        'req': 'SR 3.3', 'SL': 2,
+        'desc': 'Continuous detection capability validation'
+    },
+}
+
+def compliance_report() -> dict:
+    reqs = set(v['req'] for v in IEC_62443_MAP.values())
+    sl_counts = {}
+    for v in IEC_62443_MAP.values():
+        sl_counts[v['SL']] = sl_counts.get(v['SL'], 0) + 1
+    return {
+        'standard':          'IEC 62443-3-3',
+        'capabilities_mapped': len(IEC_62443_MAP),
+        'requirements_met':  list(reqs),
+        'achieved_SL':       max(sl_counts.keys()),
+        'breakdown':         IEC_62443_MAP,
+    }</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys7">
+<h3>26. Chaos engineering engine</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> How do you know Nyther Sentinel still detects attacks after 3 months in production? The chaos engine periodically injects known attack scenarios on a test VLAN and verifies detection. Continuous validation — shows customers and investors that detection capabilities are actively maintained, not "train once and hope."</div>
+<pre><code>import asyncio, time, json
+from dataclasses import dataclass, asdict
+
+@dataclass
+class ChaosResult:
+    test_id: str; attack_type: str
+    injected_at: float; detected_at: float
+    latency_s: float; detected: bool; score: float
+
+SCENARIOS = [
+    {'type':'FDI',        'expected_s':4,  'params':{'buses':[3,5],'scale':1.2}},
+    {'type':'THEFT',      'expected_s':30, 'params':{'bus':7,'mw':0.5}},
+    {'type':'SCADA_CMD',  'expected_s':2,  'params':{'device':2,'fc':6}},
+    {'type':'REPLAY',     'expected_s':1,  'params':{}},
+    {'type':'HONEYPOT',   'expected_s':0.5,'params':{}},
+]
+
+class ChaosEngine:
+    def __init__(self, api_url: str, schedule_h: int = 24):
+        self.api   = api_url
+        self.sched = schedule_h
+        self.log   = []
+
+    async def run_test(self, scenario: dict) -> ChaosResult:
+        tid = f"CHAOS-{int(time.time())}"
+        t0  = time.time()
+        # await inject_via_api(self.api, scenario)
+        detected   = False; t_det = t0; score = 0.0
+        deadline   = t0 + scenario['expected_s'] * 3
+        while time.time() < deadline:
+            await asyncio.sleep(0.5)
+            # alert = await poll_alerts(self.api, since=t0)
+            # if alert and alert['type'] == scenario['type']:
+            #     detected = True; t_det = time.time(); score = alert['score']; break
+        result = ChaosResult(tid, scenario['type'], t0, t_det,
+                             round(t_det-t0,2), detected, score)
+        self.log.append(result); return result
+
+    async def run_all(self):
+        for s in SCENARIOS:
+            r = await self.run_test(s)
+            print(f"[CHAOS] {r.attack_type}: {'PASS' if r.detected else 'FAIL'} "
+                  f"latency={r.latency_s}s")
+            await asyncio.sleep(60)
+
+    def report(self) -> dict:
+        if not self.log: return {'status': 'no tests run'}
+        n = len(self.log); det = sum(1 for r in self.log if r.detected)
+        return {
+            'detection_rate':       f"{det/n*100:.1f}%",
+            'mean_latency_s':       round(sum(r.latency_s for r in self.log)/n, 2),
+            'tests_run':            n,
+            'sla_pass':             det == n,
+        }</code></pre>
+</div>
+
+<div class="imp-card sys" id="sys8">
+<h3>27. Federated learning across substations</h3>
+<div class="imp-meta">
+  <span class="tag tag-sys">System</span>
+  <span class="tag tag-later">Post-funding</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Multiple substations can collectively learn attack patterns without sharing raw sensor data — only model gradients are exchanged. Each substation improves detection from attacks seen anywhere in the network. Federated averaging (FedAvg) is the standard algorithm. Critical for scaling to a DISCOM with 50+ substations while preserving data privacy.</div>
+<pre><code>import torch, copy
+import numpy as np
+
+def fedavg(global_model, local_models: list,
+            weights: list = None) -> torch.nn.Module:
+    """
+    Federated Averaging (McMahan et al. 2017).
+    global_model: current server model
+    local_models: list of locally updated models from each substation
+    weights:      proportion of training data at each substation
+    """
+    if weights is None:
+        weights = [1.0 / len(local_models)] * len(local_models)
+    weights = np.array(weights) / sum(weights)
+
+    global_dict = global_model.state_dict()
+    for key in global_dict:
+        global_dict[key] = sum(
+            weights[i] * local_models[i].state_dict()[key].float()
+            for i in range(len(local_models))
+        )
+    global_model.load_state_dict(global_dict)
+    return global_model
+
+
+def local_update(model, local_data: list, epochs=5, lr=1e-4) -> torch.nn.Module:
+    """Train a local copy on substation-specific data. Only gradients leave."""
+    local = copy.deepcopy(model)
+    opt   = torch.optim.Adam(local.parameters(), lr=lr)
+    data  = torch.FloatTensor(local_data)
+    for _ in range(epochs):
+        pred = local(data[:, :2])
+        loss = torch.nn.MSELoss()(pred, data[:, 2:])
+        opt.zero_grad(); loss.backward(); opt.step()
+    return local
+
+
+# Differential privacy noise (prevents gradient inversion attacks)
+def add_dp_noise(model, sigma=0.01, clip_norm=1.0) -> torch.nn.Module:
+    """Clip gradients + add Gaussian noise for differential privacy."""
+    for param in model.parameters():
+        if param.grad is not None:
+            grad_norm = param.grad.norm(2)
+            clip_coef = clip_norm / (grad_norm + 1e-6)
+            if clip_coef < 1:
+                param.grad.mul_(clip_coef)
+            param.grad.add_(torch.randn_like(param.grad) * sigma)
+    return model</code></pre>
+</div>
+
+<!-- ============================================================ -->
+<!--  DEPLOYMENT SECTION                                          -->
+<!-- ============================================================ -->
+<div class="section-banner dep">
+  <div class="section-icon icon-dep">D</div>
+  <div>
+    <h2>Deployment Upgrades</h2>
+    <p>7 improvements — making Nyther Sentinel installable, operable, and maintainable in real Indian grid environments</p>
+  </div>
+</div>
+
+<div class="imp-card dep" id="dep1">
+<h3>28. Edge deployment on NVIDIA Jetson Nano</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Rural Indian substations have unreliable internet. Cloud-dependent IDS is worthless here. A Jetson Nano (₹15,000) running Nyther Sentinel locally works offline, has &lt;10ms inference latency, and is what DISCOMs actually need. This is the architecture that wins pilot partnerships.</div>
+<pre><code># Step 1: Export PINN to ONNX
+import torch
+dummy = torch.randn(1, 2)
+torch.onnx.export(pinn_model, dummy, 'nyther_pinn.onnx',
+    input_names=['bus_time'], output_names=['state_pred'],
+    dynamic_axes={'bus_time': {0: 'batch'}})
+
+# Step 2: Convert to TensorRT on Jetson (run on device):
+# trtexec --onnx=nyther_pinn.onnx --saveEngine=nyther_pinn.trt --fp16
+
+# Step 3: Python TRT inference wrapper
+import tensorrt as trt, pycuda.driver as cuda, numpy as np
+
+class TRTPINNInference:
+    def __init__(self, engine_path: str):
+        with open(engine_path, 'rb') as f:
+            runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
+            self.engine = runtime.deserialize_cuda_engine(f.read())
+        self.context = self.engine.create_execution_context()
+
+    def infer(self, bus_norm: float, time_norm: float) -> np.ndarray:
+        inp = np.array([[bus_norm, time_norm]], dtype=np.float32)
+        out = np.empty((1, 4), dtype=np.float32)
+        # allocate, copy, execute, copy back
+        d_in  = cuda.mem_alloc(inp.nbytes)
+        d_out = cuda.mem_alloc(out.nbytes)
+        cuda.memcpy_htod(d_in, inp)
+        self.context.execute_v2([int(d_in), int(d_out)])
+        cuda.memcpy_dtoh(out, d_out)
+        return out[0]
+
+# Jetson resource budget:
+JETSON = {
+    'inference_ms': '< 2ms',    # well within 2s polling cycle
+    'ram_mb':       800,        # leaves 3.2GB for OS
+    'power_W':      5,          # runs on small UPS
+    'cost_inr':     15000,
+}
+
+# Dockerfile.jetson:
+"""
+FROM nvcr.io/nvidia/l4t-pytorch:r35.2.1-pth2.0-py3
+WORKDIR /app
+COPY requirements-jetson.txt .
+RUN pip install -r requirements-jetson.txt --no-cache-dir
+COPY core/ ./core/
+COPY api/ ./api/
+EXPOSE 8000
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+"""</code></pre>
+</div>
+
+<div class="imp-card dep" id="dep2">
+<h3>29. Docker Compose + Grafana production stack</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> One command should bring up the entire system. Operators must not need to manually configure services. Pre-built Grafana dashboards replace the need for a custom React app during early pilots — Grafana is already familiar to DISCOM IT teams.</div>
+<pre><code># docker-compose.production.yml
+version: '3.8'
+services:
+
+  nyther-api:
+    build: .
+    ports: ["8000:8000"]
+    restart: unless-stopped
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+    depends_on: [influxdb, wazuh-manager]
+    environment:
+      - ENV=production
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_TOKEN=change_in_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s; timeout: 5s; retries: 3
+
+  influxdb:
+    image: influxdb:2.6
+    ports: ["8086:8086"]
+    volumes: [influx_data:/var/lib/influxdb2]
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_ORG: nyther
+      DOCKER_INFLUXDB_INIT_BUCKET: grid_telemetry
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: change_in_prod
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    ports: ["3000:3000"]
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: change_in_prod
+      GF_INSTALL_PLUGINS: grafana-clock-panel,volkovlabs-form-panel
+
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.7.0
+    ports: ["1514:1514/udp", "55000:55000"]
+    volumes: [wazuh_data:/var/ossec/data]
+
+  conpot-honeypot:
+    image: honeynet/conpot
+    network_mode: host   # must be on OT network segment
+    restart: unless-stopped
+
+volumes:
+  influx_data: {}
+  grafana_data: {}
+  wazuh_data: {}
+
+# Grafana datasource provisioning (grafana/datasources/influx.yml):
+# apiVersion: 1
+# datasources:
+#   - name: InfluxDB-Nyther
+#     type: influxdb
+#     url: http://influxdb:8086
+#     jsonData: { version: Flux, organization: nyther, defaultBucket: grid_telemetry }
+#     secureJsonData: { token: change_in_prod }</code></pre>
+</div>
+
+<div class="imp-card dep" id="dep3">
+<h3>30. REST API with OpenAPI 3.0 spec</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> DISCOMs need to integrate Nyther Sentinel into their existing SCADA HMI and billing systems. A documented REST API is the integration interface. FastAPI generates OpenAPI spec automatically — Swagger UI is free. Without an API, the product is a demo, not a deployable system.</div>
+<pre><code>from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional
+import time
+
+app = FastAPI(
+    title="Nyther Sentinel API",
+    description="Cyber-physical intrusion detection for power distribution grids",
+    version="2.0.0",
+    docs_url="/api/docs",      # Swagger UI at /api/docs
+    redoc_url="/api/redoc",    # ReDoc at /api/redoc
+    openapi_url="/api/openapi.json"
+)
+app.add_middleware(CORSMiddleware, allow_origins=["*"],
+                   allow_methods=["*"], allow_headers=["*"])
+
+# ── Models ───────────────────────────────────────────────────────
+class GridSnapshot(BaseModel):
+    bus_voltages:  List[float]
+    active_powers: List[float]
+    frequency_hz:  float = 50.0
+    timestamp:     Optional[float] = None
+
+class AttackInjectRequest(BaseModel):
+    attack_type: str          # 'fdi' | 'theft' | 'scada_cmd'
+    parameters:  dict = {}
+
+class ThreatResponse(BaseModel):
+    threat_level:    str
+    anomaly_score:   float
+    aethelred_score: float
+    dvvalin_score:   float
+    attack_type:     str
+    affected_buses:  List[int]
+    confidence:      float
+    mitre_mapping:   dict
+    shap_explanation:dict
+    recommended_actions: List[str]
+    report_id:       str
+
+# ── Endpoints ────────────────────────────────────────────────────
+@app.post("/api/v1/detect", response_model=ThreatResponse,
+          summary="Analyse a grid snapshot for anomalies",
+          tags=["Detection"])
+async def detect(snapshot: GridSnapshot):
+    # ... run AEthelred + Dvvalin + Valkyrie ...
+    pass
+
+@app.get("/api/v1/status",
+         summary="System health and engine status",
+         tags=["System"])
+async def status():
+    return {
+        "status":    "running",
+        "version":   "2.0.0",
+        "engines":   {"aethelred":"online","dvvalin":"online","valkyrie":"online"},
+        "uptime_s":  time.time(),
+    }
+
+@app.get("/api/v1/alerts",
+         summary="Get recent alerts (paginated)",
+         tags=["Alerts"])
+async def get_alerts(limit: int = 50, offset: int = 0,
+                      min_score: float = 0.0):
+    pass   # return from database
+
+@app.post("/api/v1/inject",
+          summary="[Demo] Inject a synthetic attack scenario",
+          tags=["Demo"])
+async def inject_attack(req: AttackInjectRequest):
+    pass
+
+@app.get("/api/v1/buses/{bus_id}",
+         summary="Get per-bus anomaly history",
+         tags=["Grid"])
+async def bus_history(bus_id: int, hours: int = 24):
+    pass
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}</code></pre>
+</div>
+
+<div class="imp-card dep" id="dep4">
+<h3>31. Role-based access control (RBAC)</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Grid operators, security analysts, DISCOM admins, and NCIIPC auditors each need different views and permissions. Without RBAC, the system is not deployable in any real organisation. Use Auth0 or Keycloak — do not build this from scratch.</div>
+<pre><code>from functools import wraps
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import jwt   # pip install python-jose[cryptography]
+
+ROLES = {
+    'grid_operator':   ['view_alerts', 'view_grid_state'],
+    'security_analyst':['view_alerts', 'view_grid_state',
+                        'inject_attacks', 'view_forensics'],
+    'discom_admin':    ['view_alerts', 'view_grid_state', 'view_reports',
+                        'manage_settings', 'export_data'],
+    'nciipc_auditor':  ['view_alerts', 'view_reports', 'view_forensics'],
+}
+
+bearer = HTTPBearer()
+
+async def get_current_user(creds: HTTPAuthorizationCredentials = Depends(bearer)):
+    try:
+        payload = jwt.decode(creds.credentials,
+                              options={"verify_signature": False})  # verify in prod
+        return payload
+    except Exception:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token")
+
+def require_permission(permission: str):
+    def decorator(fn):
+        @wraps(fn)
+        async def wrapper(*args, user=Depends(get_current_user), **kwargs):
+            role = user.get('role', '')
+            if permission not in ROLES.get(role, []):
+                raise HTTPException(status.HTTP_403_FORBIDDEN,
+                    f"Role '{role}' lacks permission '{permission}'")
+            return await fn(*args, user=user, **kwargs)
+        return wrapper
+    return decorator
+
+# Usage:
+# @app.post("/api/v1/inject")
+# @require_permission("inject_attacks")
+# async def inject(req, user): ...</code></pre>
+</div>
+
+<div class="imp-card dep" id="dep5">
+<h3>32. Tamper-evident audit log (hash chain)</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★</span>
+  <span class="tag">Effort ★★</span>
+</div>
+<div class="why"><strong>Why:</strong> For legal admissibility of attack evidence in India (IT Act Section 79A), the audit log must be tamper-evident. A hash chain — each entry hashes the previous entry — makes it cryptographically impossible to alter past records without detection. Also required for ISO 27001 and IEC 62443 compliance.</div>
+<pre><code>import hashlib, json, time
+from typing import Optional
+
+class TamperEvidentLog:
+    """
+    Append-only log where each entry contains the hash of the previous entry.
+    Any alteration of past entries breaks the chain and is immediately detectable.
+    Satisfies IT Act §79A evidence preservation requirements.
+    """
+    def __init__(self, log_file: str = 'nyther_audit.jsonl'):
+        self.path = log_file
+        self.last_hash = '0' * 64   # genesis hash
+
+    def append(self, event_type: str, data: dict,
+                actor: str = 'system') -> str:
+        entry = {
+            'seq':        self._next_seq(),
+            'timestamp':  time.time(),
+            'iso_time':   time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'actor':      actor,
+            'event_type': event_type,
+            'data':       data,
+            'prev_hash':  self.last_hash,
+        }
+        entry_json   = json.dumps(entry, sort_keys=True)
+        entry['hash'] = hashlib.sha256(entry_json.encode()).hexdigest()
+        self.last_hash = entry['hash']
+
+        with open(self.path, 'a') as f:
+            f.write(json.dumps(entry) + '\n')
+        return entry['hash']
+
+    def verify_integrity(self) -> dict:
+        """Replay the entire chain — returns first broken link if any."""
+        prev_hash = '0' * 64
+        with open(self.path) as f:
+            for i, line in enumerate(f):
+                entry = json.loads(line)
+                stored_hash = entry.pop('hash')
+                expected    = hashlib.sha256(
+                    json.dumps(entry, sort_keys=True).encode()).hexdigest()
+                if entry['prev_hash'] != prev_hash:
+                    return {'valid': False, 'broken_at_seq': i,
+                            'reason': 'prev_hash mismatch'}
+                if stored_hash != expected:
+                    return {'valid': False, 'broken_at_seq': i,
+                            'reason': 'entry hash mismatch — tampered!'}
+                prev_hash = stored_hash
+        return {'valid': True, 'entries_verified': i + 1}
+
+    def _next_seq(self) -> int:
+        try:
+            with open(self.path) as f:
+                return sum(1 for _ in f)
+        except FileNotFoundError:
+            return 0</code></pre>
+</div>
+
+<div class="imp-card dep" id="dep6">
+<h3>33. WhatsApp / SMS alerting</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-now">Do now</span>
+  <span class="tag">Impact ★★★</span>
+  <span class="tag">Effort ★</span>
+</div>
+<div class="why"><strong>Why:</strong> Indian utility operators check WhatsApp, not email. This is simply the reality. A CRITICAL alert that sits in an email inbox for 3 hours is a failed alert. Twilio SMS + WhatsApp Business API sends alerts to operators' phones within seconds. Easiest high-impact feature in this entire list — a few hours to implement.</div>
+<pre><code># pip install twilio
+from twilio.rest import Client
+import os, time
+
+TWILIO_SID   = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_FROM  = os.getenv('TWILIO_FROM_NUMBER')  # e.g. +14155552671
+
+ALERT_CONTACTS = {
+    'grid_operator':   ['+919876543210'],
+    'security_analyst':['+919876543211'],
+    'on_call_manager': ['+919876543212'],
+}
+
+def send_sms_alert(threat_event, to_role: str = 'grid_operator'):
+    client = Client(TWILIO_SID, TWILIO_TOKEN)
+    ts     = time.strftime('%H:%M:%S', time.localtime(threat_event.timestamp))
+    body   = (f"[NYTHER SENTINEL] {threat_event.threat_level.value} ALERT\n"
+              f"Time: {ts}\n"
+              f"Attack: {threat_event.attack_type}\n"
+              f"Buses: {threat_event.affected_buses}\n"
+              f"Score: {threat_event.final_score:.2f}\n"
+              f"Action: {threat_event.recommended_actions[0] if threat_event.recommended_actions else 'Review dashboard'}")
+
+    for number in ALERT_CONTACTS.get(to_role, []):
+        client.messages.create(to=number, from_=TWILIO_FROM, body=body)
+
+def send_whatsapp_alert(threat_event, to_number: str):
+    """WhatsApp Business API via Twilio sandbox."""
+    client = Client(TWILIO_SID, TWILIO_TOKEN)
+    body   = (f"*NYTHER SENTINEL — {threat_event.threat_level.value}*\n"
+              f"Attack type: `{threat_event.attack_type}`\n"
+              f"Confidence: {threat_event.confidence*100:.0f}%\n"
+              f"Action: {threat_event.recommended_actions[0] if threat_event.recommended_actions else 'Check dashboard'}")
+    client.messages.create(
+        to=f"whatsapp:{to_number}",
+        from_=f"whatsapp:{TWILIO_FROM}",
+        body=body
+    )</code></pre>
+</div>
+
+<div class="imp-card dep" id="dep7">
+<h3>34. Hardware-in-the-loop (HIL) testing</h3>
+<div class="imp-meta">
+  <span class="tag tag-dep">Deploy</span>
+  <span class="tag tag-soon">Post-PoC</span>
+  <span class="tag">Impact ★★★★★</span>
+  <span class="tag">Effort ★★★★</span>
+</div>
+<div class="why"><strong>Why:</strong> Simulations miss real hardware edge cases — clock drift on PLCs, electrical noise on OT networks, firmware-specific Modbus quirks, network broadcast storms. HIL testing (connecting Nyther Sentinel to a real RTU or PLC in a lab) is the validation step required before any pilot deployment. A ₹30,000 lab setup with a Schneider Modicon M221 or Siemens S7-1200 PLC is sufficient for initial validation.</div>
+<div class="callout info">
+  <div class="callout-title">Lab setup BOM</div>
+  <ul>
+    <li>Schneider Modicon M221 PLC or Siemens S7-1200 (₹15,000–25,000)</li>
+    <li>Managed switch with port mirroring — TP-Link TL-SG108E (₹2,500)</li>
+    <li>Laptop running Nyther Sentinel (existing hardware)</li>
+    <li>NVIDIA Jetson Nano for edge deployment validation (₹15,000)</li>
+    <li>Wireshark + pyshark for real traffic capture validation</li>
+    <li>Optional: Raspberry Pi 4 as soft RTU for additional test nodes</li>
+  </ul>
+</div>
+<pre><code># HIL test harness — runs Dvvalin against real captured OT traffic
+import pyshark, asyncio, json
+from pathlib import Path
+
+async def hil_validate_dvvalin(pcap_file: str,
+                                dvvalin_detector,
+                                ground_truth_file: str = None):
+    """
+    Replay a PCAP captured from real OT hardware through Dvvalin.
+    Compares results against ground truth labels.
+    Reveals real-hardware issues: clock drift, malformed frames,
+    vendor-specific protocol extensions.
+    """
+    cap     = pyshark.FileCapture(pcap_file, display_filter='modbus')
+    results = []
+    for pkt in cap:
+        try:
+            mp = parse_modbus_from_pyshark(pkt)
+            if mp:
+                result = dvvalin_detector.detect(mp)
+                results.append({
+                    'ts':    float(pkt.sniff_timestamp),
+                    'score': result.anomaly_score,
+                    'type':  result.anomaly_type,
+                    'fc':    mp.function_code,
+                })
+        except Exception as e:
+            results.append({'ts': 0, 'error': str(e)})
+
+    # Score against ground truth if available
+    metrics = None
+    if ground_truth_file and Path(ground_truth_file).exists():
+        with open(ground_truth_file) as f:
+            gt = json.load(f)
+        metrics = compute_detection_metrics(results, gt)
+
+    return {
+        'packets_processed': len(results),
+        'errors':            sum(1 for r in results if 'error' in r),
+        'detections':        sum(1 for r in results if r.get('score',0) > 0.5),
+        'metrics':           metrics,
+    }
+
+def parse_modbus_from_pyshark(pkt) -> object:
+    """Extract Modbus fields from pyshark packet object."""
+    try:
+        from core.dvvalin.detector import ModbusPacket
+        import time
+        return ModbusPacket(
+            timestamp=float(pkt.sniff_timestamp),
+            src_ip=str(pkt.ip.src),
+            dst_ip=str(pkt.ip.dst),
+            function_code=int(pkt.modbus.func_code),
+            unit_id=int(pkt.modbus.unit_id),
+            register_address=int(getattr(pkt.modbus,'regaddr',0)),
+            register_count=int(getattr(pkt.modbus,'wordcnt',1)),
+            data=b'',
+        )
+    except AttributeError:
+        return None</code></pre>
+</div>
+
+<!-- ============================================================ -->
+<!--  CLOSING SUMMARY                                             -->
+<!-- ============================================================ -->
+<h2>Quick-start: which 5 upgrades to do this week</h2>
+
+<p>If you're in the middle of the 3-month sprint, implement these five in the next week — they have the highest impact-to-effort ratio and directly improve your demo:</p>
+
+<table>
+  <tr><th>#</th><th>Upgrade</th><th>Time to implement</th><th>Demo impact</th></tr>
+  <tr>
+    <td>2</td>
+    <td>Bayesian PINN uncertainty (MC Dropout)</td>
+    <td>~4 hours</td>
+    <td class="tick">Cuts false positives ~75%. Immediately visible in demo.</td>
+  </tr>
+  <tr>
+    <td>15</td>
+    <td>Honeypot PLC decoys (Conpot Docker)</td>
+    <td>~3 hours</td>
+    <td class="tick">Zero-FP detection. Most dramatic demo moment possible.</td>
+  </tr>
+  <tr>
+    <td>16</td>
+    <td>MITRE ATT&amp;CK auto-mapping</td>
+    <td>~2 hours</td>
+    <td class="tick">Every alert instantly professional. VCs and government evaluators recognise ATT&amp;CK.</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>SHAP explainability</td>
+    <td>~6 hours</td>
+    <td class="tick">"Bus 7 voltage caused 62% of the alert" — the single best demo line.</td>
+  </tr>
+  <tr>
+    <td>26</td>
+    <td>Chaos engineering engine</td>
+    <td>~4 hours</td>
+    <td class="tick">Shows the system validates itself. Signals engineering maturity to VCs.</td>
+  </tr>
+</table>
+
+<hr style="margin:48px 0;border:none;border-top:1px solid var(--border)">
+<p style="color:var(--text3);font-size:12px;text-align:center">
+  Nyther Cybersecurity Research — Complete Improvements Guide v1.0<br>
+  34 upgrades across AEthelred, Dvvalin, Valkyrie, and Deployment<br>
+  From prototype to small-grid deployable
+</p>
+</div>
+</body>
+</html>

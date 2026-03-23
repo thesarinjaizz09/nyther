@@ -1,0 +1,463 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.root{padding:1.5rem 0;max-width:900px}
+.hero{margin-bottom:1.5rem}
+.hero h1{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.hero p{font-size:13px;color:var(--color-text-secondary)}
+.tabs{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{font-size:13px;font-weight:400;color:var(--color-text-secondary);padding:6px 14px 8px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:color .15s,border-color .15s}
+.tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary);font-weight:500}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.panel{display:none}.panel.active{display:block}
+
+/* ROADMAP TAB */
+.weeks-grid{display:flex;flex-direction:column;gap:10px}
+.week-row{display:flex;gap:0;align-items:stretch;border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.week-label{min-width:68px;display:flex;flex-direction:column;justify-content:center;padding:10px 12px;background:var(--color-background-secondary);border-right:0.5px solid var(--color-border-tertiary)}
+.wk-num{font-size:11px;color:var(--color-text-tertiary);letter-spacing:.04em;text-transform:uppercase}
+.wk-range{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.week-body{flex:1;padding:10px 14px;background:var(--color-background-primary);display:flex;flex-direction:column;gap:5px}
+.week-phase{font-size:11px;font-weight:500;letter-spacing:.04em;padding:2px 8px;border-radius:999px;width:fit-content}
+.phase-0{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.phase-1{background:#E6F1FB;color:#185FA5}
+.phase-2{background:#E1F5EE;color:#0F6E56}
+.phase-3{background:#FAEEDA;color:#854F0B}
+.phase-4{background:#EEEDFE;color:#3C3489}
+@media(prefers-color-scheme:dark){
+.phase-1{background:#0C447C;color:#B5D4F4}
+.phase-2{background:#085041;color:#9FE1CB}
+.phase-3{background:#633806;color:#FAC775}
+.phase-4{background:#3C3489;color:#CECBF6}
+}
+.week-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.week-tasks{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.task-chip{font-size:11px;padding:2px 8px;border-radius:999px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);background:var(--color-background-secondary);cursor:pointer;transition:background .12s,border-color .12s}
+.task-chip:hover{background:var(--color-background-tertiary);border-color:var(--color-border-secondary)}
+.task-chip.done{background:var(--color-background-success);border-color:var(--color-border-success);color:var(--color-text-success);text-decoration:line-through}
+.week-criterion{font-size:12px;color:var(--color-text-secondary);border-left:2px solid var(--color-border-secondary);padding-left:8px;margin-top:4px}
+.week-criterion span{font-weight:500;color:var(--color-text-primary)}
+.progress-bar-wrap{margin:0 0 1.25rem;display:flex;align-items:center;gap:12px}
+.progress-label{font-size:12px;color:var(--color-text-secondary);min-width:100px}
+.pbar{flex:1;height:6px;border-radius:3px;background:var(--color-background-tertiary);overflow:hidden}
+.pbar-fill{height:100%;background:var(--color-border-primary);border-radius:3px;transition:width .5s}
+.progress-pct{font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:32px;text-align:right}
+
+/* ARCHITECTURE TAB */
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.arch-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.arch-card.full{grid-column:1/-1}
+.arch-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.arch-badge{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:500}
+.badge-ae{background:#E6F1FB;color:#185FA5}
+.badge-dv{background:#E1F5EE;color:#0F6E56}
+.badge-vk{background:#FAEEDA;color:#854F0B}
+.badge-sys{background:#EEEDFE;color:#3C3489}
+@media(prefers-color-scheme:dark){
+.badge-ae{background:#0C447C;color:#B5D4F4}
+.badge-dv{background:#085041;color:#9FE1CB}
+.badge-vk{background:#633806;color:#FAC775}
+.badge-sys{background:#3C3489;color:#CECBF6}
+}
+.module-list{display:flex;flex-direction:column;gap:4px}
+.module-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-top:0.5px solid var(--color-border-tertiary)}
+.module-row:first-child{border-top:none}
+.mod-num{font-size:11px;font-weight:500;color:var(--color-text-tertiary);min-width:20px}
+.mod-name{font-size:13px;font-weight:500;color:var(--color-text-primary);min-width:130px}
+.mod-desc{font-size:12px;color:var(--color-text-secondary);flex:1}
+.mod-tool{font-size:11px;font-family:var(--font-mono);color:var(--color-text-tertiary);white-space:nowrap}
+.math-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-family:var(--font-mono);font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-top:8px;border:0.5px solid var(--color-border-tertiary)}
+
+/* UPGRADES TAB */
+.upgrades-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.filter-btn{font-size:12px;padding:4px 12px;border-radius:999px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .12s}
+.filter-btn.active{border-color:var(--color-border-primary);color:var(--color-text-primary);background:var(--color-background-secondary);font-weight:500}
+.upgrades-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.upgrade-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;cursor:pointer;transition:border-color .12s,background .12s}
+.upgrade-card:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.upgrade-card.done-card{border-color:var(--color-border-success);background:var(--color-background-success)}
+.up-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}
+.up-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.up-num{font-size:11px;color:var(--color-text-tertiary)}
+.up-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.up-tag{font-size:10px;padding:1px 6px;border-radius:999px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.up-impact{display:flex;align-items:center;gap:4px;margin-top:4px}
+.star{font-size:10px}
+.star.filled{color:#EF9F27}
+.star.empty{color:var(--color-border-secondary)}
+.up-why{font-size:11px;color:var(--color-text-secondary);margin-top:5px;line-height:1.55;display:none}
+.upgrade-card:hover .up-why,.upgrade-card:focus .up-why{display:block}
+
+/* METRICS TAB */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:14px}
+.metric-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-value{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.metric-target{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.mbar-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:0.5px solid var(--color-border-tertiary)}
+.mbar-row:first-child{border-top:none;padding-top:0}
+.mbar-label{font-size:13px;color:var(--color-text-primary);flex:1}
+.mbar-wrap{width:180px;height:8px;background:var(--color-background-tertiary);border-radius:4px;overflow:hidden}
+.mbar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.mbar-fill.fdi{background:#378ADD}
+.mbar-fill.theft{background:#1D9E75}
+.mbar-fill.scada{background:#BA7517}
+.mbar-fill.fpr{background:#E24B4A}
+.mbar-num{font-size:12px;color:var(--color-text-secondary);min-width:40px;text-align:right}
+.thesis-box{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px;margin-top:10px}
+.thesis-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
+.thesis-items{display:flex;flex-direction:column;gap:8px}
+.thesis-item{display:flex;align-items:flex-start;gap:10px}
+.ti-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:1px}
+.ti-icon.n{background:var(--color-background-info);color:var(--color-text-info)}
+.ti-icon.p{background:var(--color-background-success);color:var(--color-text-success)}
+.ti-text{font-size:13px;color:var(--color-text-primary)}
+.ti-sub{font-size:11px;color:var(--color-text-secondary)}
+
+/* FILES TAB */
+.file-tree{font-family:var(--font-mono);font-size:12px;line-height:1.9;color:var(--color-text-secondary)}
+.file-tree .dir{color:var(--color-text-primary);font-weight:500}
+.file-tree .key-file{color:var(--color-text-info)}
+.file-tree .comment{color:var(--color-text-tertiary);font-size:11px}
+.file-status-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-top:0.5px solid var(--color-border-tertiary)}
+.file-status-row:first-child{border-top:none;padding-top:0}
+.fs-name{font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);flex:1}
+.fs-badge{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500}
+.fs-done{background:var(--color-background-success);color:var(--color-text-success)}
+.fs-todo{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.fs-desc{font-size:11px;color:var(--color-text-secondary);width:220px}
+</style>
+
+<div class="root">
+<div class="hero">
+  <h1>Nyther Sentinel — MVP build guide</h1>
+  <p>12 weeks · solo founder · production-grade physics-informed IDS</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('roadmap',this)">Roadmap</button>
+  <button class="tab" onclick="switchTab('arch',this)">Architecture</button>
+  <button class="tab" onclick="switchTab('upgrades',this)">34 upgrades</button>
+  <button class="tab" onclick="switchTab('metrics',this)">Targets</button>
+  <button class="tab" onclick="switchTab('files',this)">Files</button>
+</div>
+
+<!-- ROADMAP -->
+<div id="panel-roadmap" class="panel active">
+  <div class="progress-bar-wrap">
+    <span class="progress-label">Overall progress</span>
+    <div class="pbar"><div class="pbar-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="progress-pct" id="prog-pct">0%</span>
+  </div>
+  <div class="weeks-grid" id="weeks-grid"></div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div id="panel-arch" class="panel">
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-name"><span class="arch-badge badge-ae">AEthelred</span> Physics-informed detection</div>
+      <div class="module-list">
+        <div class="module-row"><span class="mod-num">M1</span><span class="mod-name">Data ingestion</span><span class="mod-desc">Parse Modbus/IEC-61850 into PhysicalStateReading stream</span><span class="mod-tool">Zeek, pymodbus</span></div>
+        <div class="module-row"><span class="mod-num">M2</span><span class="mod-name">Physics oracle</span><span class="mod-desc">Solve AC power flow → h(x_expected) per bus per timestep</span><span class="mod-tool">PyPSA, pandapower</span></div>
+        <div class="module-row"><span class="mod-num">M3</span><span class="mod-name">Bayesian PINN</span><span class="mod-desc">MC Dropout: predict distribution, compute z-scores</span><span class="mod-tool">DeepXDE, PyTorch</span></div>
+        <div class="module-row"><span class="mod-num">M4</span><span class="mod-name">Anomaly detection</span><span class="mod-desc">FDI residual r(z) = |z_obs − h(x_exp)|, chi-sq + RCF</span><span class="mod-tool">scipy, sklearn</span></div>
+        <div class="module-row"><span class="mod-num">M5</span><span class="mod-name">Threat classification</span><span class="mod-desc">Attack type + SNR filtering + narrative</span><span class="mod-tool">Custom RF + SHAP</span></div>
+        <div class="module-row"><span class="mod-num">M6</span><span class="mod-name">Response</span><span class="mod-desc">Alert to Suricata, Wazuh, dashboard, incident report</span><span class="mod-tool">FastAPI, Suricata</span></div>
+      </div>
+      <div class="math-box">
+L_total = λ_d·L_data + λ_p·L_physics + λ_b·L_boundary
+r(z)    = |z_observed − h(x_expected)|
+Score   = ||ŷ_t − y_t||² + λ·||r_t||²</div>
+    </div>
+    <div class="arch-card">
+      <div class="arch-name"><span class="arch-badge badge-dv">Dvvalin</span> SCADA network IDS</div>
+      <div class="module-list">
+        <div class="module-row"><span class="mod-num">D1</span><span class="mod-name">Behavioral profiler</span><span class="mod-desc">One-Class SVM per device; learns normal command patterns</span><span class="mod-tool">sklearn OC-SVM</span></div>
+        <div class="module-row"><span class="mod-num">D2</span><span class="mod-name">Replay detector</span><span class="mod-desc">Payload hash cache + seq regression + burst rate</span><span class="mod-tool">hashlib, deque</span></div>
+        <div class="module-row"><span class="mod-num">D3</span><span class="mod-name">Honeypot monitor</span><span class="mod-desc">Zero-FP: any contact with honeypot PLC = attacker</span><span class="mod-tool">Conpot</span></div>
+        <div class="module-row"><span class="mod-num">D4</span><span class="mod-name">Unauth write check</span><span class="mod-desc">Modbus write commands from non-whitelisted devices</span><span class="mod-tool">pymodbus</span></div>
+        <div class="module-row"><span class="mod-num">D5</span><span class="mod-name">MITRE auto-map</span><span class="mod-desc">Every alert → ATT&CK for ICS tactic + technique ID</span><span class="mod-tool">lookup dict</span></div>
+      </div>
+      <div class="math-box">
+Protocols: Modbus TCP · DNP3 · IEC-61850 · OPC-UA
+Honeypot:  P(false_pos) = 0 (by construction)
+Burst:     &gt;20 identical cmds / 60s → REPLAY alert</div>
+    </div>
+    <div class="arch-card full">
+      <div class="arch-name"><span class="arch-badge badge-vk">Valkyrie</span> Fusion + response</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div class="math-box" style="margin-top:0">
+w_A = w_AEthelred × conf_A
+w_D = w_Dvvalin   × conf_D
+S_T = (w_A·S_A + w_D·S_D) / (w_A+w_D)
+
+if S_A &gt; 0.5 AND S_D &gt; 0.5:
+  S_T = min(1.0, S_T × 1.25)  ← corroboration
+
+CRITICAL: S_T &gt; 0.80
+HIGH:     S_T &gt; 0.65
+MEDIUM:   S_T &gt; 0.45
+LOW:      S_T &gt; 0.25</div>
+        </div>
+        <div class="module-list">
+          <div class="module-row"><span class="mod-num">V1</span><span class="mod-name">SHAP explainability</span><span class="mod-desc">Dominant feature for every alert</span></div>
+          <div class="module-row"><span class="mod-num">V2</span><span class="mod-name">Auto incident report</span><span class="mod-desc">CERT-In format PDF on CRITICAL</span></div>
+          <div class="module-row"><span class="mod-num">V3</span><span class="mod-name">Chaos engineering</span><span class="mod-desc">Attack injection every 24h for continuous validation</span></div>
+          <div class="module-row"><span class="mod-num">V4</span><span class="mod-name">WhatsApp alerting</span><span class="mod-desc">Twilio → phone numbers on CRITICAL/HIGH</span></div>
+          <div class="module-row"><span class="mod-num">V5</span><span class="mod-name">L-index monitor</span><span class="mod-desc">Voltage stability — operational grid health overlay</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UPGRADES -->
+<div id="panel-upgrades" class="panel">
+  <div class="upgrades-filter" id="upg-filter">
+    <button class="filter-btn active" onclick="filterUpg('all',this)">All 34</button>
+    <button class="filter-btn" onclick="filterUpg('now',this)">Do now</button>
+    <button class="filter-btn" onclick="filterUpg('post',this)">Post-PoC</button>
+    <button class="filter-btn" onclick="filterUpg('ae',this)">AEthelred</button>
+    <button class="filter-btn" onclick="filterUpg('dv',this)">Dvvalin</button>
+    <button class="filter-btn" onclick="filterUpg('vk',this)">Valkyrie</button>
+    <button class="filter-btn" onclick="filterUpg('deploy',this)">Deployment</button>
+  </div>
+  <div class="upgrades-grid" id="upg-grid"></div>
+</div>
+
+<!-- METRICS -->
+<div id="panel-metrics" class="panel">
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">FDI detection rate</div><div class="metric-value">85%</div><div class="metric-target">stretch: 92%+</div></div>
+    <div class="metric-card"><div class="metric-label">False positive rate</div><div class="metric-value">&lt;5%</div><div class="metric-target">stretch: &lt;2%</div></div>
+    <div class="metric-card"><div class="metric-label">Mean time to detect</div><div class="metric-value">&lt;4s</div><div class="metric-target">stretch: &lt;2s</div></div>
+    <div class="metric-card"><div class="metric-label">Theft detection rate</div><div class="metric-value">82%</div><div class="metric-target">stretch: 90%+</div></div>
+    <div class="metric-card"><div class="metric-label">PINN latency</div><div class="metric-value">&lt;500ms</div><div class="metric-target">stretch: &lt;100ms</div></div>
+    <div class="metric-card"><div class="metric-label">Residual ratio (FDI)</div><div class="metric-value">&gt;15×</div><div class="metric-target">stretch: &gt;30×</div></div>
+  </div>
+  <div style="margin-bottom:14px">
+    <div class="mbar-row"><span class="mbar-label">FDI detection</span><div class="mbar-wrap"><div class="mbar-fill fdi" style="width:85%"></div></div><span class="mbar-num">85%</span></div>
+    <div class="mbar-row"><span class="mbar-label">Theft detection</span><div class="mbar-wrap"><div class="mbar-fill theft" style="width:82%"></div></div><span class="mbar-num">82%</span></div>
+    <div class="mbar-row"><span class="mbar-label">SCADA attack detection</span><div class="mbar-wrap"><div class="mbar-fill scada" style="width:88%"></div></div><span class="mbar-num">88%</span></div>
+    <div class="mbar-row"><span class="mbar-label">False positive rate</span><div class="mbar-wrap"><div class="mbar-fill fpr" style="width:5%"></div></div><span class="mbar-num">&lt;5%</span></div>
+  </div>
+  <div class="thesis-box">
+    <div class="thesis-title">Core thesis — why it works</div>
+    <div class="thesis-items">
+      <div class="thesis-item"><div class="ti-icon n">1</div><div><div class="ti-text">Network layer legitimate</div><div class="ti-sub">Packets correctly formatted, authenticated, on-interval — Dvvalin sees normal traffic</div></div></div>
+      <div class="thesis-item"><div class="ti-icon n">2</div><div><div class="ti-text">Physics violated</div><div class="ti-sub">Falsified voltages cannot satisfy S = V·conj(Y·V) — AEthelred residual spikes</div></div></div>
+      <div class="thesis-item"><div class="ti-icon n">3</div><div><div class="ti-text">Thermodynamic inconsistency</div><div class="ti-sub">Hardware implants alter EM emissions — Brynhildr detects (Phase 2, post-funding)</div></div></div>
+      <div class="thesis-item"><div class="ti-icon p">✓</div><div><div class="ti-text">Attacker cannot fool all three simultaneously</div><div class="ti-sub">Liu et al. (ACM CCS 2011) bypass only works against linearised H — PINN enforces full nonlinear AC equations</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FILES -->
+<div id="panel-files" class="panel">
+  <div class="file-tree" style="margin-bottom:16px">
+<span class="dir">nyther-sentinel/</span>
+├── <span class="key-file">core/config.py</span>           <span class="comment">← all settings, Pydantic Settings v2</span>
+├── <span class="key-file">core/models.py</span>           <span class="comment">← all shared data models</span>
+├── core/grid_simulator/
+│   ├── <span class="key-file">feeder.py</span>            <span class="comment">← IEEE 33-bus Indian feeder</span>
+│   └── <span class="key-file">attack_injector.py</span>   <span class="comment">← FDI, theft, Liu 2011 attack</span>
+├── core/aethelred/
+│   ├── <span class="key-file">physics_engine.py</span>    <span class="comment">← Y-bus, residuals, NTL, L-index</span>
+│   ├── <span class="key-file">detectors.py</span>         <span class="comment">← Multiscale, BayesianPINN, IsolationForest</span>
+│   ├── <span class="key-file">pi_gnn.py</span>            <span class="comment">← PI-GNN (upgrade #1)</span>
+│   └── <span class="key-file">engine.py</span>            <span class="comment">← AEthelredEngine orchestrator</span>
+├── core/dvvalin/
+│   └── <span class="key-file">engine.py</span>            <span class="comment">← DvvalinEngine, replay, honeypot</span>
+├── core/valkyrie/
+│   └── <span class="key-file">engine.py</span>            <span class="comment">← ValkyrieEngine, fusion, alerts</span>
+├── <span class="key-file">api/main.py</span>              <span class="comment">← FastAPI + WebSocket /ws/stream</span>
+├── notebooks/
+│   └── <span class="key-file">week1_validation.py</span>  <span class="comment">← run this first: verify everything works</span>
+├── tests/unit/
+│   └── <span class="key-file">test_physics_engine.py</span> <span class="comment">← 12 tests for the core detection primitive</span>
+├── <span class="key-file">docker-compose.yml</span>       <span class="comment">← full stack: API+Redis+InfluxDB+Grafana+Conpot</span>
+└── <span class="key-file">pyproject.toml</span>           <span class="comment">← all dependencies, pinned</span>
+  </div>
+  <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px">File status</div>
+  <div id="file-status-list"></div>
+</div>
+
+</div>
+
+<script>
+const WEEKS=[
+  {range:"1",phase:"Phase 0",pclass:"phase-0",title:"Environment + power systems crash course",tasks:["Python venv","pandapower install","IEEE 33-bus power flow","IndianDistributionFeeder","AttackInjector","FDI residual visible"],criterion:"<span>Success:</span> Normal residual &lt;0.001 pu | FDI residual &gt;0.05 pu"},
+  {range:"2–3",phase:"Phase 1a — Physics oracle",pclass:"phase-1",title:"PhysicsResidualEngine + Isolation Forest",tasks:["Y-bus build","compute_power_residuals()","check_kcl_violations()","compute_energy_imbalance()","IsolationForest fit on 48h baseline","MultiscaleDetector"],criterion:"<span>Success:</span> KCL residuals &lt;0.001 normal | &gt;0.05 FDI | IF detection rate &gt;70%"},
+  {range:"3–4",phase:"Phase 1b — Bayesian PINN",pclass:"phase-1",title:"BayesianPINN training + multiscale",tasks:["BayesianPINN architecture","MC Dropout inference","composite loss L_data+L_physics","training on 48h baseline","z-score anomaly alert","L_physics convergence check"],criterion:"<span>Success:</span> L_physics &lt;0.001 at convergence | inference &lt;500ms | FPR drops vs IF alone"},
+  {range:"4–5",phase:"Phase 1c — Upgrades",pclass:"phase-1",title:"PI-GNN + online adaptive learning + L-index",tasks:["PI-GNN (upgrade #1)","Bayesian uncertainty (upgrade #2)","online adaptive learning (upgrade #4)","voltage stability L-index (upgrade #6)","ROCOF monitor (upgrade #7)","AEthelredEngine integration"],criterion:"<span>Success:</span> GNN improves F1 by &gt;8% over flat PINN | L-index alerts on load manipulation"},
+  {range:"5–6",phase:"Phase 2a — Dvvalin",pclass:"phase-2",title:"Modbus simulation + behavioral baseline",tasks:["pymodbus traffic sim","ScadaPacket model","BehavioralProfiler OC-SVM","unauthorized write detection","replay attack detector","MITRE ATT&CK auto-map"],criterion:"<span>Success:</span> Dvvalin detection rate &gt;80% on MSU SCADA dataset"},
+  {range:"6–7",phase:"Phase 2b — Dvvalin upgrades",pclass:"phase-2",title:"Honeypot + replay + protocol fuzzing",tasks:["Conpot honeypot deploy","HoneypotMonitor","replay detector full suite","device timing fingerprinting","protocol fuzzing defense","MSU dataset validation"],criterion:"<span>Success:</span> Honeypot zero FP | replay detect &gt;95% | full Dvvalin suite operational"},
+  {range:"8–9",phase:"Phase 3 — Valkyrie",pclass:"phase-3",title:"Fusion engine + SHAP + auto incident report",tasks:["ValkyrieEngine confidence weighting","corroboration bonus","SHAP explainability","auto incident report (CERT-In format)","chaos engineering engine"],criterion:"<span>Success:</span> Fused score improves detection vs either engine alone"},
+  {range:"9",phase:"Phase 3b — Response",pclass:"phase-3",title:"FastAPI + WebSocket + WhatsApp alerting",tasks:["FastAPI backend","WebSocket /ws/stream","Suricata Lua rules","Wazuh integration","WhatsApp/SMS alerting","Docker Compose full stack"],criterion:"<span>Success:</span> End-to-end: attack injection → SOC dashboard alert &lt;4 seconds"},
+  {range:"10–12",phase:"Phase 4 — Demo",pclass:"phase-4",title:"React dashboard + live demo polish",tasks:["React grid topology viz","3 attack inject buttons","Grafana dashboards","backup demo video","Docker one-command deploy","OpenAPI spec complete"],criterion:"<span>Success:</span> Full 12-min demo runs 5× without failure | VC-ready presentation"},
+];
+
+const UPGRADES=[
+  {n:1,title:"Physics-Informed GNN",engine:"AEthelred",when:"now",impact:5,why:"Power grid is a graph — GAT exploits topology. FDI between connected buses creates graph-level residual patterns IF can't see. +10–15% F1."},
+  {n:2,title:"Bayesian PINN uncertainty",engine:"AEthelred",when:"now",impact:5,why:"MC Dropout gives confidence intervals. Alert only outside 3σ band. Cuts FPR from ~8% to ~2% — single biggest quality improvement."},
+  {n:3,title:"Multi-timescale windows",engine:"AEthelred",when:"now",impact:5,why:"Fast (6s): FDI/commands. Slow (5min): theft/manipulation. Single window misses one class. Two windows catch both."},
+  {n:4,title:"Online adaptive learning",engine:"AEthelred",when:"now",impact:4,why:"Indian grids have seasonal load patterns. Model trained in November generates false positives by May. Exponential forgetting keeps model current."},
+  {n:5,title:"Wavelet theft detection",engine:"AEthelred",when:"post",impact:4,why:"DWT reveals high-frequency signatures from meter shunts invisible to time-domain. +12% theft F1."},
+  {n:6,title:"Voltage stability L-index",engine:"AEthelred",when:"now",impact:3,why:"Makes Sentinel operationally useful to grid operators — not just security. Dramatically increases DISCOM pilot likelihood."},
+  {n:7,title:"Frequency / ROCOF monitor",engine:"AEthelred",when:"now",impact:3,why:"ROCOF anomaly detects islanding and coordinated attacks targeting frequency stability."},
+  {n:8,title:"Adversarial PINN hardening",engine:"AEthelred",when:"post",impact:4,why:"Adversarial training makes PINN robust to model-aware attackers who try to craft attacks that fool the PINN directly."},
+  {n:9,title:"Causal root-cause layer",engine:"AEthelred",when:"post",impact:4,why:"Causal graph above detection layer: not just 'anomaly at bus 7' but 'source was bus 3 → propagated via line 3-7'."},
+  {n:10,title:"Transfer learning",engine:"AEthelred",when:"post",impact:3,why:"Transfer from IEEE datasets reduces real DISCOM data requirement to ~5000 samples for fine-tuning."},
+  {n:11,title:"IEC-61850 + DNP3 + OPC-UA",engine:"Dvvalin",when:"post",impact:5,why:"Indian substations use DNP3 legacy RTUs. IEC-61850 GOOSE for protection relay monitoring. Required for DISCOM pilot."},
+  {n:12,title:"Device timing fingerprinting",engine:"Dvvalin",when:"post",impact:4,why:"Each PLC/RTU has unique firmware timing jitter. Spoofed device has different timing profile from legitimate. Zero-config detection."},
+  {n:13,title:"Graph behavioral GNN",engine:"Dvvalin",when:"post",impact:4,why:"Model normal communication graph of OT network. Lateral movement changes the graph topology — GNN detects it."},
+  {n:14,title:"Replay attack detection",engine:"Dvvalin",when:"now",impact:4,why:"Record a legitimate Open Breaker command, replay later. Easy attack, devastating impact. Hash cache + seq number = 2 hours to implement."},
+  {n:15,title:"Honeypot PLC decoys",engine:"Dvvalin",when:"now",impact:5,why:"Zero false positives by construction. Any contact = attacker. 30–60 min early warning. Docker run conpot in one afternoon."},
+  {n:16,title:"MITRE ATT&CK auto-map",engine:"Dvvalin",when:"now",impact:4,why:"Mandatory for government scheme submissions. Every alert becomes audit-ready. 2 hours to implement."},
+  {n:17,title:"Protocol fuzzing defense",engine:"Dvvalin",when:"now",impact:3,why:"Attacker sends malformed Modbus packets to probe device firmware. Detect anomalous packet structure."},
+  {n:18,title:"MITM via RTT detection",engine:"Dvvalin",when:"post",impact:3,why:"Man-in-the-middle proxy adds latency. Statistical RTT baseline per device detects this without decryption."},
+  {n:19,title:"Encrypted traffic analysis",engine:"Dvvalin",when:"funding",impact:4,why:"TLS-over-ICS is rare today but growing. ML on packet timing and size distributions detects attacks without decryption."},
+  {n:20,title:"SHAP explainability",engine:"Valkyrie",when:"now",impact:5,why:"Every alert must name the dominant feature. Regulators and operators need to understand WHY the system fired."},
+  {n:21,title:"Live digital twin sync",engine:"Valkyrie",when:"funding",impact:5,why:"Real SCADA integration syncs the pandapower model to live grid state. Eliminates drift between simulation and reality."},
+  {n:22,title:"Honeypot data streams",engine:"Valkyrie",when:"post",impact:3,why:"Fake sensor data streams for reconnaissance attackers. Keeps attacker engaged while Valkyrie tracks their behaviour."},
+  {n:23,title:"MISP threat intelligence",engine:"Valkyrie",when:"post",impact:3,why:"Correlate attacker IPs with MISP threat feeds. Link local events to global ICS threat campaigns."},
+  {n:24,title:"Auto incident report",engine:"Valkyrie",when:"now",impact:4,why:"CERT-In mandates reporting within 6 hours. Auto-generated PDF report on every CRITICAL alert."},
+  {n:25,title:"IEC 62443 compliance map",engine:"Valkyrie",when:"post",impact:3,why:"Map every Sentinel control to IEC 62443 security level requirements. Mandatory for enterprise procurement."},
+  {n:26,title:"Chaos engineering engine",engine:"Valkyrie",when:"now",impact:4,why:"Automated attack injection every 24h. Continuously verifies detection performance is maintained. Produces weekly validation report."},
+  {n:27,title:"Federated learning",engine:"Valkyrie",when:"funding",impact:4,why:"Models improve from events at any substation without sharing raw sensor data. Addresses DISCOM data-sharing concerns."},
+  {n:28,title:"Edge deployment — Jetson Nano",engine:"Deployment",when:"post",impact:5,why:"Rural Indian substations have unreliable connectivity. PINN on TensorRT + Jetson = offline-capable at ₹15,000 hardware cost."},
+  {n:29,title:"Docker + Grafana stack",engine:"Deployment",when:"now",impact:5,why:"One-command demo: docker compose up. Grafana dashboards pre-provisioned. Required for VC demo."},
+  {n:30,title:"REST API + OpenAPI spec",engine:"Deployment",when:"now",impact:4,why:"SCADA vendors (ABB, Siemens, Schneider) need a standard integration interface. OpenAPI 3.0 spec = enterprise-ready."},
+  {n:31,title:"Role-based access control",engine:"Deployment",when:"post",impact:3,why:"DISCOM operators see alerts; security analysts see full investigation view; admins see config. IEC 62443 requirement."},
+  {n:32,title:"Tamper-evident audit log",engine:"Deployment",when:"post",impact:3,why:"Hash-chained log. Provable that no alert was deleted or modified. Required for legal defensibility."},
+  {n:33,title:"WhatsApp / SMS alerting",engine:"Deployment",when:"now",impact:4,why:"Indian grid operators use WhatsApp. Twilio API. CRITICAL alert → immediate phone notification. 1 hour to implement."},
+  {n:34,title:"Hardware-in-the-loop testing",engine:"Deployment",when:"post",impact:4,why:"Schneider Modicon PLC + managed switch. Real Modbus TCP from real hardware. Required for DISCOM pilot validation."},
+];
+
+const FILES=[
+  {name:"core/config.py",status:"done",desc:"All settings, Pydantic v2"},
+  {name:"core/models.py",status:"done",desc:"GridSnapshot, ThreatAlert, etc."},
+  {name:"core/grid_simulator/feeder.py",status:"done",desc:"IEEE 33-bus Indian feeder"},
+  {name:"core/grid_simulator/attack_injector.py",status:"done",desc:"FDI, theft, Liu 2011"},
+  {name:"core/aethelred/physics_engine.py",status:"done",desc:"Y-bus, residuals, NTL, L-index"},
+  {name:"core/aethelred/detectors.py",status:"done",desc:"Multiscale, BayesianPINN, IF"},
+  {name:"core/aethelred/pi_gnn.py",status:"done",desc:"PI-GNN (upgrade #1)"},
+  {name:"core/aethelred/engine.py",status:"done",desc:"AEthelredEngine orchestrator"},
+  {name:"core/dvvalin/engine.py",status:"done",desc:"DvvalinEngine + all sub-detectors"},
+  {name:"core/valkyrie/engine.py",status:"done",desc:"ValkyrieEngine, fusion, alerts"},
+  {name:"api/main.py",status:"done",desc:"FastAPI + WebSocket stream"},
+  {name:"notebooks/week1_validation.py",status:"done",desc:"Run this first"},
+  {name:"tests/unit/test_physics_engine.py",status:"done",desc:"12 unit tests"},
+  {name:"docker-compose.yml",status:"done",desc:"Full stack, one command"},
+  {name:"pyproject.toml",status:"done",desc:"All deps, pinned"},
+  {name:"core/aethelred/pinn_trainer.py",status:"todo",desc:"Week 3–4: full PINN training loop"},
+  {name:"core/dvvalin/modbus_simulator.py",status:"todo",desc:"Week 5: synthetic traffic gen"},
+  {name:"core/valkyrie/incident_report.py",status:"todo",desc:"Week 8: CERT-In PDF generator"},
+  {name:"core/valkyrie/chaos_engine.py",status:"todo",desc:"Week 9: automated attack schedule"},
+  {name:"api/alerting.py",status:"todo",desc:"Week 9: WhatsApp/SMS via Twilio"},
+  {name:"dashboard/src/App.jsx",status:"todo",desc:"Week 10+: React frontend"},
+];
+
+let doneWeeks=new Set();
+let doneUpgrades=new Set();
+
+function renderWeeks(){
+  const g=document.getElementById('weeks-grid');
+  g.innerHTML='';
+  WEEKS.forEach((w,i)=>{
+    const d=doneWeeks.has(i);
+    const row=document.createElement('div');
+    row.className='week-row';
+    row.style.opacity=d?'0.7':'1';
+    row.innerHTML=`
+      <div class="week-label" style="${d?'background:var(--color-background-success)':''}">
+        <span class="wk-num">week</span>
+        <span class="wk-range">${w.range}</span>
+      </div>
+      <div class="week-body">
+        <span class="week-phase ${w.pclass}">${w.phase}</span>
+        <div class="week-title">${d?'✓ ':''}${w.title}</div>
+        <div class="week-tasks">${w.tasks.map(t=>`<span class="task-chip${d?' done':''}" onclick="toggleTask(event,'${t.replace(/'/g,'')}')">${t}</span>`).join('')}</div>
+        <div class="week-criterion">${w.criterion}</div>
+      </div>`;
+    row.querySelector('.week-title').onclick=()=>{
+      if(d)doneWeeks.delete(i); else doneWeeks.add(i);
+      updateProgress();renderWeeks();
+    };
+    row.querySelector('.week-title').style.cursor='pointer';
+    g.appendChild(row);
+  });
+}
+
+function toggleTask(e,t){e.stopPropagation();e.target.classList.toggle('done');}
+
+function updateProgress(){
+  const pct=Math.round(doneWeeks.size/WEEKS.length*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+}
+
+let upFilter='all';
+function renderUpgrades(){
+  const g=document.getElementById('upg-grid');
+  const filtered=UPGRADES.filter(u=>{
+    if(upFilter==='all')return true;
+    if(upFilter==='now')return u.when==='now';
+    if(upFilter==='post')return u.when==='post'||u.when==='funding';
+    if(upFilter==='ae')return u.engine==='AEthelred';
+    if(upFilter==='dv')return u.engine==='Dvvalin';
+    if(upFilter==='vk')return u.engine==='Valkyrie';
+    if(upFilter==='deploy')return u.engine==='Deployment';
+    return true;
+  });
+  g.innerHTML=filtered.map(u=>{
+    const stars='★'.repeat(u.impact)+'☆'.repeat(5-u.impact);
+    const engMap={AEthelred:'badge-ae',Dvvalin:'badge-dv',Valkyrie:'badge-vk',Deployment:'badge-sys'};
+    const whenMap={now:'Do now',post:'Post-PoC',funding:'Post-funding'};
+    const done=doneUpgrades.has(u.n);
+    return `<div class="upgrade-card${done?' done-card':''}" onclick="toggleUpgrade(${u.n})">
+      <div class="up-header"><span class="up-title">${done?'✓ ':''}${u.title}</span><span class="up-num">#${u.n}</span></div>
+      <div class="up-tags">
+        <span class="up-tag arch-badge ${engMap[u.engine]}">${u.engine}</span>
+        <span class="up-tag">${whenMap[u.when]}</span>
+      </div>
+      <div class="up-impact">${[1,2,3,4,5].map(s=>`<span class="star ${s<=u.impact?'filled':'empty'}">★</span>`).join('')}</div>
+      <div class="up-why">${u.why}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleUpgrade(n){if(doneUpgrades.has(n))doneUpgrades.delete(n);else doneUpgrades.add(n);renderUpgrades();}
+
+function filterUpg(f,btn){
+  upFilter=f;
+  document.querySelectorAll('#upg-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderUpgrades();
+}
+
+function renderFiles(){
+  const l=document.getElementById('file-status-list');
+  l.innerHTML=FILES.map(f=>`
+    <div class="file-status-row">
+      <span class="fs-name">${f.name}</span>
+      <span class="fs-badge ${f.status==='done'?'fs-done':'fs-todo'}">${f.status==='done'?'done':'to build'}</span>
+      <span class="fs-desc">${f.desc}</span>
+    </div>`).join('');
+}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+renderWeeks();
+updateProgress();
+renderUpgrades();
+renderFiles();
+</script>

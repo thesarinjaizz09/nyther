@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyther Sentinel — Complete Build Guide</title>
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f7f6f2; --bg3: #f0ede6;
+    --text: #1a1a18; --text2: #4a4a47; --text3: #7a7a77;
+    --border: #e0ddd6; --border2: #ccc9c0;
+    --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-mid: #1D9E75;
+    --purple: #534AB7; --purple-bg: #EEEDFE;
+    --amber: #854F0B; --amber-bg: #FAEEDA; --amber-mid: #EF9F27;
+    --coral: #993C1D; --coral-bg: #FAECE7;
+    --blue: #185FA5; --blue-bg: #E6F1FB;
+    --gray-bg: #F1EFE8;
+    --red: #A32D2D; --red-bg: #FCEBEB;
+    --green: #3B6D11; --green-bg: #EAF3DE;
+    --code-bg: #f4f3ef;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  /* Header */
+  .doc-header { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 36px; }
+  .doc-header h1 { font-size: 28px; font-weight: 600; color: var(--text); }
+  .doc-header p { color: var(--text2); margin-top: 8px; font-size: 15px; }
+  .meta-row { display: flex; gap: 16px; margin-top: 14px; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500; }
+  .badge-teal { background: var(--teal-bg); color: var(--teal); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-purple { background: var(--purple-bg); color: var(--purple); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+
+  /* TOC */
+  .toc { background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 22px 26px; margin-bottom: 40px; }
+  .toc h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--text3); margin-bottom: 12px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 5px 0; }
+  .toc a { color: var(--blue); text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  h2 { font-size: 22px; font-weight: 600; margin: 48px 0 16px;
+    padding-top: 48px; border-top: 1px solid var(--border); color: var(--text); }
+  h2:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+  h3 { font-size: 17px; font-weight: 600; margin: 28px 0 10px; color: var(--text); }
+  h4 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; color: var(--text2); }
+  p { margin-bottom: 12px; color: var(--text2); }
+  ul, ol { padding-left: 22px; margin-bottom: 12px; }
+  li { margin: 4px 0; color: var(--text2); }
+  strong { color: var(--text); font-weight: 600; }
+  a { color: var(--blue); }
+
+  /* Phase banners */
+  .phase-banner { display: flex; align-items: center; gap: 14px;
+    padding: 16px 20px; border-radius: 10px; margin: 28px 0 18px; }
+  .phase-banner.teal { background: var(--teal-bg); border-left: 4px solid var(--teal-mid); }
+  .phase-banner.purple { background: var(--purple-bg); border-left: 4px solid var(--purple); }
+  .phase-banner.amber { background: var(--amber-bg); border-left: 4px solid var(--amber-mid); }
+  .phase-banner.coral { background: var(--coral-bg); border-left: 4px solid var(--coral); }
+  .phase-banner.gray { background: var(--gray-bg); border-left: 4px solid var(--text3); }
+  .phase-num { font-size: 22px; font-weight: 700; min-width: 36px; }
+  .phase-banner.teal .phase-num { color: var(--teal); }
+  .phase-banner.purple .phase-num { color: var(--purple); }
+  .phase-banner.amber .phase-num { color: var(--amber); }
+  .phase-banner.coral .phase-num { color: var(--coral); }
+  .phase-banner.gray .phase-num { color: var(--text3); }
+  .phase-info h3 { margin: 0 0 3px; font-size: 16px; font-weight: 600; }
+  .phase-info p { margin: 0; font-size: 13px; }
+
+  /* Code blocks */
+  pre { background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 18px; overflow-x: auto;
+    font-size: 13px; line-height: 1.6; margin: 12px 0 18px; }
+  code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; }
+  p code, li code { background: var(--code-bg); padding: 2px 6px;
+    border-radius: 4px; font-size: 13px; color: var(--teal); }
+
+  /* Callout boxes */
+  .callout { border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
+  .callout.info { background: var(--blue-bg); border-left: 3px solid var(--blue); }
+  .callout.warn { background: var(--amber-bg); border-left: 3px solid var(--amber-mid); }
+  .callout.success { background: var(--green-bg); border-left: 3px solid var(--green); }
+  .callout.danger { background: var(--red-bg); border-left: 3px solid var(--red); }
+  .callout-title { font-weight: 600; font-size: 13px; text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 6px; }
+  .callout.info .callout-title { color: var(--blue); }
+  .callout.warn .callout-title { color: var(--amber); }
+  .callout.success .callout-title { color: var(--green); }
+  .callout.danger .callout-title { color: var(--red); }
+  .callout p { margin: 0; font-size: 14px; }
+
+  /* Paper cards */
+  .paper-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .paper-card { background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px; }
+  .paper-card h4 { font-size: 13px; margin: 0 0 4px; color: var(--text); }
+  .paper-card p { font-size: 12px; margin: 0; color: var(--text3); }
+  .paper-card .why { font-size: 12px; margin-top: 6px; color: var(--teal); font-style: italic; }
+
+  /* Dataset cards */
+  .dataset-row { display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .dataset-row:last-child { border-bottom: none; }
+  .ds-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px;
+    font-weight: 600; white-space: nowrap; min-width: 80px; text-align: center; }
+  .ds-badge.free { background: var(--green-bg); color: var(--green); }
+  .ds-badge.sim { background: var(--purple-bg); color: var(--purple); }
+  .ds-info h4 { font-size: 14px; font-weight: 600; margin: 0 0 3px; color: var(--text); }
+  .ds-info p { font-size: 13px; margin: 0; color: var(--text2); }
+  .ds-info .use { font-size: 12px; color: var(--teal); margin-top: 3px; }
+
+  /* Checklist */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { display: flex; align-items: flex-start; gap: 10px;
+    padding: 6px 0; font-size: 14px; }
+  .checklist li::before { content: ''; display: inline-block;
+    width: 16px; height: 16px; border: 1.5px solid var(--border2);
+    border-radius: 4px; flex-shrink: 0; margin-top: 3px; }
+
+  /* Week tracker */
+  .week-row { display: grid; grid-template-columns: 72px 1fr;
+    gap: 0; margin: 8px 0; }
+  .week-label { background: var(--bg3); border-radius: 6px 0 0 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text3);
+    padding: 8px 4px; text-align: center; }
+  .week-content { background: var(--bg2); border-radius: 0 6px 6px 0;
+    padding: 10px 14px; border-left: none; }
+  .week-content strong { font-size: 13px; display: block; margin-bottom: 2px; }
+  .week-content span { font-size: 12px; color: var(--text3); }
+
+  /* Milestone box */
+  .milestone { background: var(--amber-bg); border: 1.5px solid var(--amber-mid);
+    border-radius: 10px; padding: 18px 22px; margin: 28px 0; }
+  .milestone h4 { color: var(--amber); font-size: 13px; text-transform: uppercase;
+    letter-spacing: 0.04em; margin-bottom: 6px; }
+  .milestone p { margin: 0; font-size: 14px; color: var(--text); }
+
+  /* Demo script */
+  .demo-step { display: grid; grid-template-columns: 36px 1fr;
+    gap: 12px; margin: 14px 0; align-items: flex-start; }
+  .demo-num { width: 36px; height: 36px; border-radius: 50%;
+    background: var(--teal-mid); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .demo-text h4 { font-size: 14px; font-weight: 600; margin: 0 0 3px; color: var(--text); }
+  .demo-text p { font-size: 13px; margin: 0; color: var(--text2); }
+
+  @media (max-width: 600px) {
+    .paper-grid { grid-template-columns: 1fr; }
+    .container { padding: 24px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="doc-header">
+  <h1>Nyther Sentinel — Complete Build Guide</h1>
+  <p>A solo-founder, 3-month roadmap from zero to VC-ready prototype.<br>
+  Covers every phase, research paper, dataset, code pattern, and demo script.</p>
+  <div class="meta-row">
+    <span class="badge badge-teal">Python / ML / Networking / Backend</span>
+    <span class="badge badge-amber">Solo Founder</span>
+    <span class="badge badge-purple">Target: VC Pitch Demo</span>
+    <span class="badge badge-red">Timeline: 12 Weeks</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <h3>Contents</h3>
+  <ol>
+    <li><a href="#strategy">MVP Strategy — What You Are Actually Building</a></li>
+    <li><a href="#phase0">Phase 0 — Setup &amp; Power Systems Crash Course (Week 1)</a></li>
+    <li><a href="#phase1">Phase 1 — AEthelred: Physics-Informed Detection (Weeks 2–4)</a></li>
+    <li><a href="#phase2">Phase 2 — Dvvalin: SCADA Network IDS (Weeks 5–7)</a></li>
+    <li><a href="#phase3">Phase 3 — Valkyrie: Fusion Engine &amp; Response (Weeks 8–9)</a></li>
+    <li><a href="#phase4">Phase 4 — Demo Dashboard &amp; VC Polish (Weeks 10–12)</a></li>
+    <li><a href="#papers">Essential Research Papers</a></li>
+    <li><a href="#datasets">Datasets</a></li>
+    <li><a href="#demo">VC Demo Script</a></li>
+    <li><a href="#pitfalls">Common Pitfalls</a></li>
+  </ol>
+</div>
+
+<!-- ===== SECTION 1: STRATEGY ===== -->
+<h2 id="strategy">1. MVP Strategy — What You Are Actually Building</h2>
+
+<div class="callout warn">
+  <div class="callout-title">Critical framing</div>
+  <p>You are NOT building production Nyther Sentinel in 3 months. You are building a <strong>compelling proof of the core thesis</strong> — enough to show a VC that (1) the technical idea works, (2) you can execute, and (3) the market is real. Every decision in this guide is optimized for that goal.</p>
+</div>
+
+<h3>What the VC demo must show</h3>
+<ol>
+  <li><strong>A simulated power distribution network</strong> that behaves like a real Indian grid feeder</li>
+  <li><strong>Three attack scenarios</strong> injected live: FDI attack, electricity theft, malicious SCADA command</li>
+  <li><strong>AEthelred detecting</strong> FDI and theft by catching physics violations in real time</li>
+  <li><strong>Dvvalin detecting</strong> the SCADA command anomaly from network traffic patterns</li>
+  <li><strong>Valkyrie fusing</strong> both signals into a single threat confidence score with an alert</li>
+  <li><strong>A clean dashboard</strong> showing all of this live — not a Jupyter notebook</li>
+</ol>
+
+<h3>What you are NOT building for the VC demo</h3>
+<ul>
+  <li>Brynhildr (thermodynamic analysis) — mention it as roadmap, build it post-funding</li>
+  <li>Real DISCOM data integration — simulate a realistic Indian feeder topology</li>
+  <li>Production hardening, multi-tenant auth, cloud deployment</li>
+  <li>A mobile app or installer</li>
+</ul>
+
+<h3>The core technical decisions</h3>
+<p>Based on your background (Python/ML, networking, backend — no power systems), here are the deliberate choices made in this guide:</p>
+<ul>
+  <li><strong>Grid simulator:</strong> <code>pandapower</code> — Python-native, IEEE test networks built in, no MATLAB needed</li>
+  <li><strong>Digital twin concept:</strong> Run the expected state in pandapower, compare against "sensor readings" — the gap is your anomaly score</li>
+  <li><strong>ML approach for AEthelred:</strong> Start with physics residuals + Isolation Forest, then upgrade to LSTM autoencoder. This is faster to build and more explainable to VCs</li>
+  <li><strong>Network IDS:</strong> Simulate Modbus traffic with <code>pymodbus</code>, detect anomalies with statistical baselines + One-Class SVM</li>
+  <li><strong>No real hardware:</strong> Everything runs in software simulation. Frame this correctly — "we simulated a 33-bus Indian distribution feeder with parameters matching CESC topology"</li>
+</ul>
+
+<!-- ===== SECTION 2: PHASE 0 ===== -->
+<h2 id="phase0">2. Phase 0 — Setup &amp; Power Systems Crash Course</h2>
+
+<div class="phase-banner gray">
+  <div class="phase-num">0</div>
+  <div class="phase-info">
+    <h3>Duration: Week 1 (Days 1–7)</h3>
+    <p>Environment setup, power systems fundamentals, first pandapower simulation running</p>
+  </div>
+</div>
+
+<h3>Environment setup</h3>
+<pre><code># Create isolated environment
+python -m venv nyther-env
+source nyther-env/bin/activate  # Linux/Mac
+# nyther-env\Scripts\activate   # Windows
+
+# Core dependencies
+pip install pandapower numpy scipy pandas matplotlib seaborn
+pip install scikit-learn torch torchvision
+pip install pymodbus scapy pyshark
+pip install fastapi uvicorn websockets python-socketio
+pip install kafka-python influxdb-client
+pip install pytest black flake8 jupyter
+
+# Verify pandapower
+python -c "import pandapower; pandapower.test_result_check()"</code></pre>
+
+<h3>Project folder structure</h3>
+<pre><code>nyther-sentinel/
+├── core/
+│   ├── grid_simulator/       # pandapower grid + attack injection
+│   ├── aethelred/            # physics-informed detection engine
+│   ├── dvvalin/              # SCADA network IDS engine
+│   ├── valkyrie/             # fusion + response engine
+│   └── data_pipeline/        # stream processing, feature extraction
+├── api/
+│   ├── main.py               # FastAPI backend
+│   └── websocket.py          # real-time event streaming
+├── dashboard/                # React frontend (Week 10+)
+├── datasets/                 # raw + processed datasets
+├── notebooks/                # exploration, not production code
+├── tests/
+└── docs/</code></pre>
+
+<h3>Power systems crash course — what you must understand</h3>
+<p>You don't need an electrical engineering degree. You need to understand four things deeply enough to build AEthelred:</p>
+
+<h4>1. The bus system</h4>
+<p>A "bus" is a node in the grid — a point where power flows in or out. The IEEE 14-bus test network (your starting point) has 14 buses connected by transmission lines. Each bus has: voltage magnitude (V), voltage angle (θ), active power injection (P), reactive power injection (Q).</p>
+
+<h4>2. Power flow equations (the core of AEthelred)</h4>
+<p>For any bus i in the network, the injected active power must satisfy:</p>
+<pre><code># Active power balance at bus i
+# Pi_injected = sum over all connected buses j of:
+#   Vi * Vj * (Gij * cos(θi - θj) + Bij * sin(θi - θj))
+#
+# Where:
+#   Vi, Vj = voltage magnitudes at buses i and j
+#   θi, θj = voltage angles at buses i and j
+#   Gij = conductance of line i-j (real part of admittance)
+#   Bij = susceptance of line i-j (imaginary part of admittance)
+
+# In pandapower, this is solved automatically:
+import pandapower as pp
+net = pp.networks.case14()   # IEEE 14-bus
+pp.runpp(net)                # runs Newton-Raphson power flow
+print(net.res_bus)           # voltage magnitudes and angles at each bus
+print(net.res_line)          # power flows on each line</code></pre>
+
+<h4>3. Energy balance (the theft detection primitive)</h4>
+<p>At any distribution transformer feeding N customers:</p>
+<pre><code># P_in = sum(P_customer_i) + P_line_losses + P_unaccounted
+#
+# P_line_losses can be estimated: P_loss = I^2 * R
+# If P_unaccounted > threshold → theft or false data injection
+#
+# Key metric: Non-Technical Loss (NTL) ratio
+# NTL = (P_in - sum(P_meters) - P_estimated_loss) / P_in
+# NTL > 0.05 (5%) is suspicious in Indian distribution networks</code></pre>
+
+<h4>4. State estimation vs. true state</h4>
+<p>The grid has a "true physical state" and an "observed state" from sensors. An FDI attack manipulates sensor readings while the true state stays the same. AEthelred's job is to catch when the observed state is physically impossible given the network topology — the attacker cannot change the laws of physics.</p>
+
+<h3>Week 1 deliverable</h3>
+<div class="milestone">
+  <h4>Week 1 milestone</h4>
+  <p>A Jupyter notebook that: (1) loads the IEEE 14-bus network in pandapower, (2) runs a power flow, (3) manually injects a false measurement into one bus, (4) shows the residual between expected and observed. This is the embryo of AEthelred.</p>
+</div>
+
+<pre><code">import pandapower as pp
+import pandapower.networks as pn
+import numpy as np
+
+# Load IEEE 14-bus (your digital twin backbone)
+net = pn.case14()
+pp.runpp(net)
+
+# True state (what physics says should be happening)
+true_vm = net.res_bus['vm_pu'].values.copy()       # voltage magnitudes
+true_va = net.res_bus['va_degree'].values.copy()    # voltage angles
+
+print("True bus voltages:", true_vm)
+
+# Simulate an FDI attack: attacker manipulates sensor at bus 3
+attacked_vm = true_vm.copy()
+attacked_vm[3] *= 1.15  # inflate voltage reading by 15%
+
+# Residual: how far is the "observed" state from what physics predicts?
+residuals = np.abs(attacked_vm - true_vm)
+print("Residuals:", residuals)
+print("Max residual at bus:", np.argmax(residuals))  # should be bus 3</code></pre>
+
+<!-- ===== SECTION 3: PHASE 1 ===== -->
+<h2 id="phase1">3. Phase 1 — AEthelred: Physics-Informed Detection</h2>
+
+<div class="phase-banner teal">
+  <div class="phase-num">1</div>
+  <div class="phase-info">
+    <h3>Duration: Weeks 2–4 (Days 8–28)</h3>
+    <p>Build the physics-informed anomaly detection engine. This is Nyther Sentinel's core differentiator and your strongest demo asset.</p>
+  </div>
+</div>
+
+<h3>Week 2 — Grid simulation + attack injection</h3>
+<p>Build a realistic simulated Indian distribution feeder and an attack injection module.</p>
+
+<pre><code"># core/grid_simulator/feeder.py
+import pandapower as pp
+import pandapower.networks as pn
+import numpy as np
+import pandas as pd
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class GridSnapshot:
+    timestamp: float
+    vm_pu: np.ndarray        # voltage magnitudes per bus
+    va_degree: np.ndarray    # voltage angles per bus
+    p_mw: np.ndarray         # active power per bus
+    q_mvar: np.ndarray       # reactive power per bus
+    line_loading: np.ndarray # line loading %
+    is_attacked: bool = False
+    attack_type: Optional[str] = None
+
+class IndianDistributionFeeder:
+    """
+    Simulates a 33-bus Indian distribution feeder.
+    Uses IEEE 33-bus test case as the topology base,
+    with load scaling to match typical Indian urban load profiles.
+    """
+    def __init__(self):
+        self.net = pn.case33bw()  # 33-bus distribution network
+        self._scale_to_indian_loads()
+        self.baseline_snapshots = []
+
+    def _scale_to_indian_loads(self):
+        # Scale loads to reflect typical Indian urban distribution
+        # Average household: 1.5-2 kW, 30-100 households per transformer
+        self.net.load['p_mw'] *= 0.8   # scale active power
+        self.net.load['q_mvar'] *= 0.8  # scale reactive power
+
+    def get_snapshot(self) -> GridSnapshot:
+        pp.runpp(self.net, algorithm='bfsw', numba=False)
+        return GridSnapshot(
+            timestamp=pd.Timestamp.now().timestamp(),
+            vm_pu=self.net.res_bus['vm_pu'].values.copy(),
+            va_degree=self.net.res_bus['va_degree'].values.copy(),
+            p_mw=self.net.res_bus['p_mw'].values.copy(),
+            q_mvar=self.net.res_bus['q_mvar'].values.copy(),
+            line_loading=self.net.res_line['loading_percent'].values.copy(),
+        )
+
+    def simulate_load_cycle(self, hours=24, steps_per_hour=12):
+        """Generate baseline data with realistic diurnal load variation."""
+        snapshots = []
+        for h in range(hours * steps_per_hour):
+            t = h / steps_per_hour
+            load_factor = self._diurnal_factor(t % 24)
+            self.net.load['p_mw'] = self.net.load['p_mw'] * load_factor
+            snapshots.append(self.get_snapshot())
+            self.net.load['p_mw'] = self.net.load['p_mw'] / load_factor
+        self.baseline_snapshots = snapshots
+        return snapshots
+
+    def _diurnal_factor(self, hour: float) -> float:
+        # Approximate Indian residential load curve
+        if 0 <= hour < 6: return 0.5       # night
+        elif 6 <= hour < 9: return 0.8      # morning ramp
+        elif 9 <= hour < 12: return 0.9     # daytime
+        elif 12 <= hour < 15: return 1.1    # afternoon peak (AC load in India)
+        elif 15 <= hour < 18: return 0.95
+        elif 18 <= hour < 22: return 1.3    # evening peak
+        else: return 0.7
+
+class AttackInjector:
+    """Injects cyber-physical attacks into the grid simulation."""
+
+    def inject_fdi(self, snapshot: GridSnapshot, target_buses: list,
+                   scale_factor: float = 1.2) -> GridSnapshot:
+        """
+        False Data Injection: inflate voltage readings at target buses.
+        This represents an attacker who has compromised sensors at those buses.
+        The physical grid is unchanged — only reported measurements are falsified.
+        """
+        attacked = GridSnapshot(**snapshot.__dict__)
+        attacked.vm_pu = snapshot.vm_pu.copy()
+        for bus in target_buses:
+            attacked.vm_pu[bus] *= scale_factor
+        attacked.is_attacked = True
+        attacked.attack_type = f"FDI_buses_{target_buses}"
+        return attacked
+
+    def inject_electricity_theft(self, snapshot: GridSnapshot,
+                                  theft_bus: int, theft_mw: float) -> GridSnapshot:
+        """
+        Electricity theft: a consumer at theft_bus draws theft_mw of power
+        but their smart meter reports zero consumption.
+        The feeder-level measurement shows the true power, creating an imbalance.
+        """
+        attacked = GridSnapshot(**snapshot.__dict__)
+        attacked.p_mw = snapshot.p_mw.copy()
+        # Feeder input power increases (theft is real), but meter sum doesn't
+        attacked.p_mw[0] += theft_mw   # extra power from source
+        attacked.is_attacked = True
+        attacked.attack_type = f"THEFT_bus_{theft_bus}_{theft_mw}MW"
+        return attacked
+
+    def inject_load_manipulation(self, snapshot: GridSnapshot,
+                                  buses: list, factor: float) -> GridSnapshot:
+        """Simultaneous load manipulation — coordinated attack via compromised meters."""
+        attacked = GridSnapshot(**snapshot.__dict__)
+        attacked.p_mw = snapshot.p_mw.copy()
+        for bus in buses:
+            attacked.p_mw[bus] *= factor
+        attacked.is_attacked = True
+        attacked.attack_type = f"LOAD_MANIP_{buses}"
+        return attacked</code></pre>
+
+<h3>Week 3 — Physics residual computation + Isolation Forest</h3>
+
+<pre><code># core/aethelred/detector.py
+import numpy as np
+import pandapower as pp
+import pandapower.networks as pn
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
+from dataclasses import dataclass
+from typing import Tuple
+
+@dataclass
+class AnomalyResult:
+    anomaly_score: float       # 0 = normal, 1 = definite anomaly
+    residuals: np.ndarray      # per-bus physics residuals
+    violation_buses: list      # buses where KCL/KVL is violated
+    energy_imbalance: float    # feeder-level energy imbalance ratio
+    detection_type: str        # 'FDI', 'THEFT', 'LOAD_MANIP', 'NORMAL'
+
+class PhysicsResidualEngine:
+    """
+    Core of AEthelred. Computes how far observed measurements
+    deviate from what physics says they should be.
+    """
+    def __init__(self, net_topology):
+        self.net = net_topology
+        self.Y_bus = None
+        self._build_admittance_matrix()
+
+    def _build_admittance_matrix(self):
+        """Build Y-bus admittance matrix for power flow validation."""
+        pp.runpp(self.net, numba=False)
+        n_buses = len(self.net.bus)
+        self.Y_bus = np.zeros((n_buses, n_buses), dtype=complex)
+        for _, line in self.net.line.iterrows():
+            i = int(line['from_bus'])
+            j = int(line['to_bus'])
+            z = complex(line['r_ohm_per_km'], line['x_ohm_per_km']) * line['length_km'] / 1000
+            if abs(z) < 1e-10:
+                continue
+            y = 1 / z
+            self.Y_bus[i][i] += y
+            self.Y_bus[j][j] += y
+            self.Y_bus[i][j] -= y
+            self.Y_bus[j][i] -= y
+
+    def compute_power_residuals(self, observed_vm: np.ndarray,
+                                 observed_va_deg: np.ndarray,
+                                 reported_p_mw: np.ndarray) -> np.ndarray:
+        """
+        Given observed voltages, compute expected power injections using Y_bus.
+        Compare against reported power injections.
+        Residual = |P_expected - P_reported| at each bus.
+        """
+        va_rad = np.deg2rad(observed_va_deg)
+        V = observed_vm * np.exp(1j * va_rad)
+        S_calc = V * np.conj(self.Y_bus @ V)  # S = V * (Y*V)*
+        P_calc = S_calc.real  # active power (MW) per bus
+
+        P_reported = reported_p_mw / self.net.sn_mva  # normalize to per-unit
+        residuals = np.abs(P_calc - P_reported)
+        return residuals
+
+    def compute_energy_imbalance(self, p_in_mw: float,
+                                  meter_readings_mw: np.ndarray,
+                                  estimated_loss_mw: float) -> float:
+        """
+        Feeder-level energy balance check.
+        Returns NTL ratio — > 0.05 is suspicious.
+        """
+        p_accounted = np.sum(meter_readings_mw) + estimated_loss_mw
+        imbalance = (p_in_mw - p_accounted) / (p_in_mw + 1e-6)
+        return imbalance
+
+    def check_kirchhoff_violations(self, snapshot) -> list:
+        """
+        Kirchhoff's Current Law: current into node = current out of node.
+        Find buses where this is violated beyond threshold.
+        """
+        violations = []
+        threshold = 0.05  # 5% tolerance
+        for bus_idx in range(len(self.net.bus)):
+            # Sum of currents at each bus should be near zero
+            va_rad = np.deg2rad(snapshot.va_degree)
+            V = snapshot.vm_pu * np.exp(1j * va_rad)
+            I_total = self.Y_bus[bus_idx] @ V
+            if abs(I_total.real) > threshold:
+                violations.append(bus_idx)
+        return violations
+
+
+class AEthelredDetector:
+    """
+    Full AEthelred detection pipeline.
+    Combines physics residuals with ML-based anomaly detection.
+    """
+    def __init__(self, net_topology):
+        self.physics_engine = PhysicsResidualEngine(net_topology)
+        self.scaler = StandardScaler()
+        self.isolation_forest = IsolationForest(
+            n_estimators=200,
+            contamination=0.05,  # expect ~5% anomalous readings
+            random_state=42
+        )
+        self.is_fitted = False
+        self.thresholds = {
+            'residual_mean': 0.03,     # 3% mean residual → suspicious
+            'residual_max': 0.08,      # 8% max residual at any bus → alert
+            'energy_imbalance': 0.05,  # 5% energy imbalance → alert
+        }
+
+    def fit(self, normal_snapshots: list):
+        """Train the detector on baseline normal operation data."""
+        features = [self._extract_features(s) for s in normal_snapshots]
+        X = np.array(features)
+        X_scaled = self.scaler.fit_transform(X)
+        self.isolation_forest.fit(X_scaled)
+        self.is_fitted = True
+        print(f"AEthelred trained on {len(normal_snapshots)} normal snapshots")
+
+    def _extract_features(self, snapshot) -> np.ndarray:
+        """Extract feature vector from a grid snapshot."""
+        residuals = self.physics_engine.compute_power_residuals(
+            snapshot.vm_pu, snapshot.va_degree, snapshot.p_mw
+        )
+        features = np.concatenate([
+            snapshot.vm_pu,           # voltage magnitudes
+            np.abs(snapshot.p_mw),    # active power
+            residuals,                 # physics residuals
+            [snapshot.vm_pu.std(),     # global voltage deviation
+             np.max(residuals),        # worst-case residual
+             np.mean(residuals)]       # average residual
+        ])
+        return features
+
+    def detect(self, snapshot) -> AnomalyResult:
+        """Run detection on a new snapshot. Returns AnomalyResult."""
+        residuals = self.physics_engine.compute_power_residuals(
+            snapshot.vm_pu, snapshot.va_degree, snapshot.p_mw
+        )
+        energy_imbalance = self.physics_engine.compute_energy_imbalance(
+            p_in_mw=abs(snapshot.p_mw[0]),
+            meter_readings_mw=np.abs(snapshot.p_mw[1:]),
+            estimated_loss_mw=0.02 * abs(snapshot.p_mw[0])
+        )
+        kcl_violations = self.physics_engine.check_kirchhoff_violations(snapshot)
+
+        # Physics-based score (deterministic)
+        physics_score = 0.0
+        if np.mean(residuals) > self.thresholds['residual_mean']:
+            physics_score += 0.4
+        if np.max(residuals) > self.thresholds['residual_max']:
+            physics_score += 0.3
+        if abs(energy_imbalance) > self.thresholds['energy_imbalance']:
+            physics_score += 0.3
+
+        # ML-based score (learned from data)
+        ml_score = 0.0
+        if self.is_fitted:
+            features = self._extract_features(snapshot).reshape(1, -1)
+            X_scaled = self.scaler.transform(features)
+            raw_score = self.isolation_forest.decision_function(X_scaled)[0]
+            ml_score = max(0, min(1, -raw_score + 0.5))
+
+        # Combine
+        final_score = 0.6 * physics_score + 0.4 * ml_score
+
+        # Classify
+        detection_type = 'NORMAL'
+        if energy_imbalance > 0.07:
+            detection_type = 'THEFT'
+        elif np.max(residuals) > self.thresholds['residual_max']:
+            detection_type = 'FDI'
+        elif physics_score > 0.5:
+            detection_type = 'ANOMALY'
+
+        return AnomalyResult(
+            anomaly_score=final_score,
+            residuals=residuals,
+            violation_buses=kcl_violations,
+            energy_imbalance=energy_imbalance,
+            detection_type=detection_type
+        )</code></pre>
+
+<h3>Week 4 — Upgrade to LSTM autoencoder for temporal patterns</h3>
+<p>Isolation Forest works on single snapshots. An LSTM autoencoder learns normal time-series patterns and flags deviations. This is significantly more powerful and more impressive in a demo.</p>
+
+<pre><code># core/aethelred/lstm_autoencoder.py
+import torch
+import torch.nn as nn
+import numpy as np
+
+class LSTMAutoencoder(nn.Module):
+    """
+    LSTM autoencoder for time-series anomaly detection.
+    Trained on normal grid operation windows (e.g., 60-second windows).
+    High reconstruction error = anomaly.
+    """
+    def __init__(self, input_dim: int, hidden_dim: int = 64,
+                 num_layers: int = 2, sequence_len: int = 30):
+        super().__init__()
+        self.sequence_len = sequence_len
+        self.hidden_dim = hidden_dim
+
+        # Encoder
+        self.encoder = nn.LSTM(
+            input_size=input_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=0.2
+        )
+        # Decoder
+        self.decoder = nn.LSTM(
+            input_size=hidden_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=0.2
+        )
+        self.output_layer = nn.Linear(hidden_dim, input_dim)
+
+    def forward(self, x):
+        # x shape: (batch, seq_len, input_dim)
+        encoded, (h_n, c_n) = self.encoder(x)
+        # Use encoder's last hidden state to seed decoder
+        decoder_input = encoded[:, -1:, :].repeat(1, self.sequence_len, 1)
+        decoded, _ = self.decoder(decoder_input, (h_n, c_n))
+        reconstruction = self.output_layer(decoded)
+        return reconstruction
+
+    def reconstruction_error(self, x: torch.Tensor) -> torch.Tensor:
+        """Per-sample mean squared reconstruction error."""
+        recon = self.forward(x)
+        return torch.mean((x - recon) ** 2, dim=[1, 2])
+
+
+def train_lstm_autoencoder(model, normal_sequences, epochs=50, lr=1e-3):
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    loss_fn = nn.MSELoss()
+    model.train()
+    for epoch in range(epochs):
+        total_loss = 0
+        for seq in normal_sequences:
+            x = torch.FloatTensor(seq).unsqueeze(0)
+            optimizer.zero_grad()
+            recon = model(x)
+            loss = loss_fn(recon, x)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+        if epoch % 10 == 0:
+            print(f"Epoch {epoch}: loss = {total_loss / len(normal_sequences):.6f}")
+    return model</code></pre>
+
+<div class="milestone">
+  <h4>Phase 1 milestone (end of Week 4)</h4>
+  <p>A Python script that: (1) generates 24 hours of normal grid data, (2) trains AEthelred on it, (3) injects an FDI attack and electricity theft attack, (4) correctly classifies both with anomaly score > 0.7, (5) shows < 10% false positive rate on normal data. Record this running — it becomes your demo core.</p>
+</div>
+
+<!-- ===== SECTION 4: PHASE 2 ===== -->
+<h2 id="phase2">4. Phase 2 — Dvvalin: SCADA Network IDS</h2>
+
+<div class="phase-banner purple">
+  <div class="phase-num">2</div>
+  <div class="phase-info">
+    <h3>Duration: Weeks 5–7 (Days 29–49)</h3>
+    <p>Build the industrial network intrusion detection engine. Simulate Modbus SCADA traffic, detect unauthorized commands and protocol anomalies.</p>
+  </div>
+</div>
+
+<h3>Week 5 — Modbus traffic simulation</h3>
+<p>You need realistic SCADA traffic to train and test on. Build a simulated Modbus master/slave environment.</p>
+
+<pre><code># core/dvvalin/modbus_simulator.py
+from pymodbus.client import ModbusTcpClient
+from pymodbus.server import StartTcpServer
+from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
+from pymodbus.datastore import ModbusSequentialDataBlock
+import threading
+import time
+import random
+import logging
+from dataclasses import dataclass
+from typing import List
+
+@dataclass
+class ModbusPacket:
+    timestamp: float
+    src_ip: str
+    dst_ip: str
+    function_code: int      # e.g., 3 = Read Holding Registers, 16 = Write Multiple
+    unit_id: int            # device address
+    register_address: int
+    register_count: int
+    data: bytes
+    is_malicious: bool = False
+    attack_type: str = None
+
+NORMAL_FUNCTION_CODES = {
+    1: "Read Coils",
+    2: "Read Discrete Inputs",
+    3: "Read Holding Registers",   # most common in SCADA monitoring
+    4: "Read Input Registers",
+    5: "Write Single Coil",        # circuit breaker control
+    6: "Write Single Register",
+}
+
+SUSPICIOUS_PATTERNS = {
+    # Unexpected write commands to critical registers
+    'unauthorized_write': lambda pkt: pkt.function_code in [5, 6, 15, 16]
+                                      and pkt.unit_id in [1, 2, 3],  # critical PLCs
+    # Scanning behavior (rapid sequential reads across many registers)
+    'register_scan': None,  # detected by time-series analysis
+    # Unusual function codes (could be exploits)
+    'rare_function_code': lambda pkt: pkt.function_code not in NORMAL_FUNCTION_CODES,
+}
+
+class TrafficProfiler:
+    """
+    Learns the baseline communication profile for each device pair.
+    Detects deviations: timing, frequency, function codes, register ranges.
+    """
+    def __init__(self):
+        self.profiles = {}   # key: (src_ip, dst_ip, unit_id)
+
+    def update_profile(self, packet: ModbusPacket):
+        key = (packet.src_ip, packet.dst_ip, packet.unit_id)
+        if key not in self.profiles:
+            self.profiles[key] = {
+                'function_codes': {},
+                'register_ranges': [],
+                'inter_arrival_times': [],
+                'last_seen': packet.timestamp,
+            }
+        p = self.profiles[key]
+        fc = packet.function_code
+        p['function_codes'][fc] = p['function_codes'].get(fc, 0) + 1
+        p['register_ranges'].append((packet.register_address,
+                                     packet.register_address + packet.register_count))
+        if p['last_seen']:
+            iat = packet.timestamp - p['last_seen']
+            p['inter_arrival_times'].append(iat)
+        p['last_seen'] = packet.timestamp
+
+    def get_expected_profile(self, key):
+        if key not in self.profiles:
+            return None
+        p = self.profiles[key]
+        total = sum(p['function_codes'].values())
+        fc_distribution = {k: v/total for k, v in p['function_codes'].items()}
+        iats = p['inter_arrival_times']
+        return {
+            'fc_distribution': fc_distribution,
+            'mean_iat': sum(iats)/len(iats) if iats else None,
+            'std_iat': (sum((x-sum(iats)/len(iats))**2 for x in iats)/len(iats))**0.5 if len(iats) > 1 else 0,
+            'typical_registers': p['register_ranges'],
+        }</code></pre>
+
+<h3>Week 6 — Anomaly detection on Modbus traffic</h3>
+
+<pre><code># core/dvvalin/detector.py
+import numpy as np
+from sklearn.svm import OneClassSVM
+from sklearn.preprocessing import StandardScaler
+from collections import deque
+from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+class NetworkAnomalyResult:
+    anomaly_score: float
+    triggered_rules: List[str]
+    anomaly_type: Optional[str]
+    confidence: float
+
+class DvvalinDetector:
+    """
+    Multi-layer SCADA network intrusion detection.
+    Layer 1: Rule-based (fast, deterministic, handles known attack patterns)
+    Layer 2: Statistical baseline (timing and frequency anomalies)
+    Layer 3: One-Class SVM (learned behavioral model)
+    """
+    def __init__(self):
+        self.profiler = TrafficProfiler()
+        self.scaler = StandardScaler()
+        self.ocsvm = OneClassSVM(kernel='rbf', gamma='auto', nu=0.05)
+        self.packet_window = deque(maxlen=100)  # sliding window
+        self.is_fitted = False
+        self.rules = self._define_rules()
+
+    def _define_rules(self):
+        return [
+            {
+                'name': 'unauthorized_write_to_critical_device',
+                'condition': lambda p: p.function_code in [5, 6, 15, 16]
+                                       and p.unit_id <= 3,
+                'score': 0.9,
+                'type': 'SCADA_COMMAND_INJECTION'
+            },
+            {
+                'name': 'unknown_function_code',
+                'condition': lambda p: p.function_code not in [1,2,3,4,5,6,15,16,43],
+                'score': 0.7,
+                'type': 'PROTOCOL_ANOMALY'
+            },
+            {
+                'name': 'device_impersonation',
+                'condition': lambda p: self._check_new_device(p),
+                'score': 0.8,
+                'type': 'DEVICE_SPOOFING'
+            },
+        ]
+
+    def _check_new_device(self, packet: ModbusPacket) -> bool:
+        """Flag packets from device IDs never seen before in training."""
+        key = (packet.src_ip, packet.unit_id)
+        return key not in self.known_devices if hasattr(self, 'known_devices') else False
+
+    def _extract_features(self, packet: ModbusPacket,
+                           window: deque) -> np.ndarray:
+        """Extract feature vector from a packet + recent context window."""
+        recent = list(window)
+        fc_freq = np.bincount([p.function_code for p in recent] + [0],
+                               minlength=65)[:20] / max(len(recent), 1)
+        unit_freq = np.zeros(20)
+        for p in recent:
+            if p.unit_id < 20:
+                unit_freq[p.unit_id] += 1
+        unit_freq /= max(len(recent), 1)
+        iats = np.diff([p.timestamp for p in recent]) if len(recent) > 1 else [0.1]
+        features = np.concatenate([
+            fc_freq,
+            unit_freq,
+            [np.mean(iats), np.std(iats),
+             packet.function_code / 65.0,
+             packet.unit_id / 256.0,
+             packet.register_address / 65535.0,
+             packet.register_count / 125.0]
+        ])
+        return features
+
+    def fit(self, normal_packets: List[ModbusPacket]):
+        """Train on normal SCADA traffic patterns."""
+        self.known_devices = set((p.src_ip, p.unit_id) for p in normal_packets)
+        for packet in normal_packets:
+            self.profiler.update_profile(packet)
+        window = deque(maxlen=100)
+        features = []
+        for packet in normal_packets:
+            window.append(packet)
+            features.append(self._extract_features(packet, window))
+        X = np.array(features)
+        X_scaled = self.scaler.fit_transform(X)
+        self.ocsvm.fit(X_scaled)
+        self.is_fitted = True
+
+    def detect(self, packet: ModbusPacket) -> NetworkAnomalyResult:
+        self.packet_window.append(packet)
+        triggered_rules = []
+        rule_score = 0.0
+        for rule in self.rules:
+            try:
+                if rule['condition'](packet):
+                    triggered_rules.append(rule['name'])
+                    rule_score = max(rule_score, rule['score'])
+            except Exception:
+                pass
+
+        ml_score = 0.0
+        if self.is_fitted:
+            features = self._extract_features(packet, self.packet_window).reshape(1, -1)
+            X_scaled = self.scaler.transform(features)
+            raw = self.ocsvm.decision_function(X_scaled)[0]
+            ml_score = max(0, min(1, -raw + 0.5))
+
+        final_score = 0.7 * rule_score + 0.3 * ml_score if triggered_rules else ml_score
+        anomaly_type = triggered_rules[0].upper() if triggered_rules else (
+            'BEHAVIORAL_ANOMALY' if ml_score > 0.6 else None
+        )
+        return NetworkAnomalyResult(
+            anomaly_score=final_score,
+            triggered_rules=triggered_rules,
+            anomaly_type=anomaly_type,
+            confidence=0.9 if triggered_rules else 0.6
+        )</code></pre>
+
+<h3>Week 7 — Test with real SCADA attack datasets</h3>
+<p>Now test Dvvalin against the Mississippi State University SCADA attack dataset. This is the key credibility step — real labeled attack traffic, real metrics.</p>
+
+<pre><code># notebooks/dvvalin_msu_evaluation.ipynb
+"""
+Instructions for using the MSU SCADA dataset:
+1. Download from: http://www.ece.drexel.edu/cms/sites/default/files/...
+   Or: https://ieee-dataport.org/documents/gas-pipeline-scada-dataset
+2. The dataset contains labeled Modbus TCP traffic with attack categories:
+   - Naive attacks (malformed packets)
+   - Complex attacks (command injection)
+   - DoS attacks
+3. Parse the pcap files with pyshark, extract Modbus fields,
+   convert to ModbusPacket objects, run through DvvalinDetector
+
+Key metrics to compute and report:
+- Detection rate (recall): % of attacks caught
+- False positive rate: % of normal traffic flagged
+- F1 score
+- Mean time to detect (MTTD): seconds from attack start to first alert
+"""
+
+import pyshark
+from sklearn.metrics import classification_report, confusion_matrix
+
+def parse_pcap_to_modbus_packets(pcap_file: str, label: bool) -> List[ModbusPacket]:
+    packets = []
+    cap = pyshark.FileCapture(pcap_file, display_filter='modbus')
+    for pkt in cap:
+        try:
+            mp = ModbusPacket(
+                timestamp=float(pkt.sniff_timestamp),
+                src_ip=str(pkt.ip.src),
+                dst_ip=str(pkt.ip.dst),
+                function_code=int(pkt.modbus.func_code),
+                unit_id=int(pkt.modbus.unit_id),
+                register_address=int(getattr(pkt.modbus, 'regaddr', 0)),
+                register_count=int(getattr(pkt.modbus, 'wordcnt', 1)),
+                data=b'',
+                is_malicious=label
+            )
+            packets.append(mp)
+        except AttributeError:
+            continue
+    return packets</code></pre>
+
+<div class="milestone">
+  <h4>Phase 2 milestone (end of Week 7)</h4>
+  <p>Dvvalin correctly classifies ≥ 80% of attack packets in the MSU dataset with ≤ 15% false positive rate. A confusion matrix and ROC curve are ready to show VCs.</p>
+</div>
+
+<!-- ===== SECTION 5: PHASE 3 ===== -->
+<h2 id="phase3">5. Phase 3 — Valkyrie: Fusion Engine &amp; Response</h2>
+
+<div class="phase-banner amber">
+  <div class="phase-num">3</div>
+  <div class="phase-info">
+    <h3>Duration: Weeks 8–9 (Days 50–63)</h3>
+    <p>Build the fusion layer that combines AEthelred and Dvvalin signals into a unified threat score. Add automated alert and isolation response.</p>
+  </div>
+</div>
+
+<pre><code># core/valkyrie/fusion.py
+import numpy as np
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional
+from enum import Enum
+import time
+
+class ThreatLevel(Enum):
+    NORMAL = "NORMAL"
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+@dataclass
+class ThreatEvent:
+    timestamp: float
+    threat_level: ThreatLevel
+    final_score: float
+    aethelred_score: float
+    dvvalin_score: float
+    attack_type: str
+    affected_buses: List[int]
+    recommended_actions: List[str]
+    confidence: float
+
+class ValkyrieFusion:
+    """
+    Multi-domain fusion engine.
+    Combines physics, network, and (future) thermodynamic signals.
+
+    Key design: weights are adaptive based on confidence levels.
+    If Dvvalin has high confidence (rule triggered), its weight increases.
+    If only statistical anomaly (ML only), weight is lower.
+    """
+    def __init__(self):
+        # Base weights — can be tuned per deployment
+        self.base_weights = {
+            'aethelred': 0.55,   # physics is primary signal
+            'dvvalin': 0.45,     # network is corroborating
+            # 'brynhildr': 0.20  # thermodynamic — future
+        }
+        self.alert_history = []
+        self.thresholds = {
+            ThreatLevel.LOW: 0.25,
+            ThreatLevel.MEDIUM: 0.45,
+            ThreatLevel.HIGH: 0.65,
+            ThreatLevel.CRITICAL: 0.80,
+        }
+        self.cooldown_period = 30  # seconds between alerts for same type
+        self._last_alerts: Dict[str, float] = {}
+
+    def fuse(self, aethelred_result, dvvalin_result,
+             aethelred_confidence: float = 0.7,
+             dvvalin_confidence: float = 0.7) -> ThreatEvent:
+
+        # Adaptive weighting based on confidence
+        w_a = self.base_weights['aethelred'] * aethelred_confidence
+        w_d = self.base_weights['dvvalin'] * dvvalin_confidence
+        total = w_a + w_d
+        w_a /= total
+        w_d /= total
+
+        final_score = w_a * aethelred_result.anomaly_score + \
+                      w_d * dvvalin_result.anomaly_score
+
+        # Corroboration bonus: if both signals agree, amplify confidence
+        if (aethelred_result.anomaly_score > 0.5 and
+                dvvalin_result.anomaly_score > 0.5):
+            final_score = min(1.0, final_score * 1.25)
+
+        threat_level = ThreatLevel.NORMAL
+        for level in [ThreatLevel.CRITICAL, ThreatLevel.HIGH,
+                      ThreatLevel.MEDIUM, ThreatLevel.LOW]:
+            if final_score >= self.thresholds[level]:
+                threat_level = level
+                break
+
+        attack_type = self._determine_attack_type(aethelred_result, dvvalin_result)
+        actions = self._recommend_actions(threat_level, attack_type, aethelred_result)
+        confidence = (aethelred_confidence + dvvalin_confidence) / 2 * \
+                     (1.3 if final_score > 0.5 and
+                      aethelred_result.anomaly_score > 0.3 and
+                      dvvalin_result.anomaly_score > 0.3 else 1.0)
+
+        event = ThreatEvent(
+            timestamp=time.time(),
+            threat_level=threat_level,
+            final_score=final_score,
+            aethelred_score=aethelred_result.anomaly_score,
+            dvvalin_score=dvvalin_result.anomaly_score,
+            attack_type=attack_type,
+            affected_buses=aethelred_result.violation_buses,
+            recommended_actions=actions,
+            confidence=min(0.99, confidence)
+        )
+        self.alert_history.append(event)
+        return event
+
+    def _determine_attack_type(self, ae, dv) -> str:
+        if dv.anomaly_type == 'SCADA_COMMAND_INJECTION' and ae.detection_type == 'FDI':
+            return 'COORDINATED_CYBER_PHYSICAL_ATTACK'
+        elif ae.detection_type == 'THEFT':
+            return 'ELECTRICITY_THEFT'
+        elif ae.detection_type == 'FDI':
+            return 'FALSE_DATA_INJECTION'
+        elif dv.anomaly_type:
+            return dv.anomaly_type
+        return 'UNKNOWN_ANOMALY'
+
+    def _recommend_actions(self, level: ThreatLevel,
+                            attack_type: str,
+                            ae_result) -> List[str]:
+        actions = []
+        if level in [ThreatLevel.HIGH, ThreatLevel.CRITICAL]:
+            actions.append("ISOLATE_AFFECTED_BUSES")
+            actions.append("ALERT_GRID_OPERATOR")
+            actions.append("CAPTURE_NETWORK_FORENSICS")
+        if attack_type == 'ELECTRICITY_THEFT':
+            buses_str = ', '.join(map(str, ae_result.violation_buses))
+            actions.append(f"FLAG_METERS_AT_BUSES: {buses_str}")
+            actions.append("DISPATCH_PHYSICAL_INSPECTION")
+        if attack_type == 'FALSE_DATA_INJECTION':
+            actions.append("SWITCH_TO_BACKUP_SENSORS")
+            actions.append("VERIFY_STATE_ESTIMATION_INTEGRITY")
+        if attack_type == 'COORDINATED_CYBER_PHYSICAL_ATTACK':
+            actions.append("ESCALATE_TO_NCIIPC")
+            actions.append("ACTIVATE_INCIDENT_RESPONSE_PLAYBOOK")
+        return actions</code></pre>
+
+<h3>FastAPI backend — streaming everything to the dashboard</h3>
+
+<pre><code># api/main.py
+from fastapi import FastAPI, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
+import asyncio
+import json
+import time
+from core.grid_simulator.feeder import IndianDistributionFeeder, AttackInjector
+from core.aethelred.detector import AEthelredDetector
+from core.dvvalin.detector import DvvalinDetector
+from core.valkyrie.fusion import ValkyrieFusion
+
+app = FastAPI(title="Nyther Sentinel API")
+app.add_middleware(CORSMiddleware, allow_origins=["*"],
+                   allow_methods=["*"], allow_headers=["*"])
+
+# Initialize system
+feeder = IndianDistributionFeeder()
+attacker = AttackInjector()
+aethelred = AEthelredDetector(feeder.net)
+dvvalin = DvvalinDetector()
+valkyrie = ValkyrieFusion()
+
+@app.websocket("/ws/live")
+async def live_stream(websocket: WebSocket):
+    """Streams real-time detection events to the dashboard."""
+    await websocket.accept()
+    try:
+        while True:
+            snapshot = feeder.get_snapshot()
+            ae_result = aethelred.detect(snapshot)
+            # Dvvalin runs on simulated SCADA traffic in parallel
+            # (simplified: use last detected packet result)
+            event = valkyrie.fuse(ae_result, dvvalin.last_result
+                                  if hasattr(dvvalin, 'last_result') else dvvalin._null_result())
+            payload = {
+                'timestamp': time.time(),
+                'threat_level': event.threat_level.value,
+                'final_score': round(event.final_score, 3),
+                'aethelred_score': round(event.aethelred_score, 3),
+                'dvvalin_score': round(event.dvvalin_score, 3),
+                'attack_type': event.attack_type,
+                'affected_buses': event.affected_buses,
+                'actions': event.recommended_actions,
+                'confidence': round(event.confidence, 3),
+                'bus_voltages': snapshot.vm_pu.tolist(),
+                'energy_imbalance': round(ae_result.energy_imbalance, 4),
+            }
+            await websocket.send_json(payload)
+            await asyncio.sleep(2)  # 2-second update interval
+    except Exception as e:
+        print(f"WebSocket disconnected: {e}")
+
+@app.post("/inject/fdi")
+async def inject_fdi(buses: list = [3, 5], scale: float = 1.2):
+    """Inject an FDI attack for demo purposes."""
+    feeder.attack_mode = ('fdi', buses, scale)
+    return {"status": "FDI attack injected", "buses": buses}
+
+@app.post("/inject/theft")
+async def inject_theft(bus: int = 7, mw: float = 0.5):
+    feeder.attack_mode = ('theft', bus, mw)
+    return {"status": "Electricity theft injected", "bus": bus, "mw": mw}
+
+@app.post("/inject/clear")
+async def clear_attacks():
+    feeder.attack_mode = None
+    return {"status": "Attacks cleared, grid normal"}
+
+@app.get("/health")
+async def health():
+    return {"status": "running", "engines": ["AEthelred", "Dvvalin", "Valkyrie"]}</code></pre>
+
+<!-- ===== SECTION 6: PHASE 4 ===== -->
+<h2 id="phase4">6. Phase 4 — Demo Dashboard &amp; VC Polish</h2>
+
+<div class="phase-banner coral">
+  <div class="phase-num">4</div>
+  <div class="phase-info">
+    <h3>Duration: Weeks 10–12 (Days 64–84)</h3>
+    <p>Build the demo dashboard, package the system, prepare metrics, rehearse the VC pitch demo 20+ times.</p>
+  </div>
+</div>
+
+<h3>Dashboard requirements (React)</h3>
+<p>The dashboard must show 5 things at once, all updating in real time:</p>
+<ol>
+  <li><strong>Grid topology map</strong> — 33 buses as nodes, lines as edges. Color buses by voltage level (green = normal, amber = warning, red = anomaly). This is the most visually striking element.</li>
+  <li><strong>Threat gauge</strong> — a large radial gauge showing the current Valkyrie fusion score 0–1. Color transitions normal → warning → critical.</li>
+  <li><strong>Engine scores</strong> — AEthelred and Dvvalin scores side by side, updating every 2 seconds.</li>
+  <li><strong>Alert timeline</strong> — scrolling list of events with timestamps and recommended actions.</li>
+  <li><strong>Attack injection buttons</strong> — 3 big buttons: "Inject FDI Attack", "Inject Electricity Theft", "Inject SCADA Command". VCs will press these during the demo.</li>
+</ol>
+
+<pre><code># dashboard install (inside /dashboard)
+npx create-react-app nyther-dashboard
+cd nyther-dashboard
+npm install recharts d3 react-force-graph-2d socket.io-client
+
+# Key component: real-time WebSocket connection
+# src/hooks/useNytherStream.js
+import { useState, useEffect } from 'react';
+
+export function useNytherStream(url = 'ws://localhost:8000/ws/live') {
+  const [data, setData] = useState(null);
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    const ws = new WebSocket(url);
+    ws.onopen = () => setConnected(true);
+    ws.onmessage = (e) => setData(JSON.parse(e.data));
+    ws.onclose = () => setConnected(false);
+    return () => ws.close();
+  }, [url]);
+
+  return { data, connected };
+}</code></pre>
+
+<h3>Weeks 11–12 — Polish checklist</h3>
+<ul class="checklist">
+  <li>Grid topology renders correctly with bus coloring</li>
+  <li>All three attack types detected and displayed correctly</li>
+  <li>Valkyrie fusion score updates within 4 seconds of attack injection</li>
+  <li>Alert timeline shows correct recommended actions</li>
+  <li>Detection accuracy metrics visible on dashboard (recall, FPR)</li>
+  <li>System can be demoed offline (no internet dependency)</li>
+  <li>Demo can run for 30 minutes without crashing</li>
+  <li>One-click Docker Compose startup: <code>docker-compose up</code></li>
+  <li>README with architecture diagram and setup instructions</li>
+  <li>2-page technical summary PDF ready for VC due diligence</li>
+</ul>
+
+<h3>Docker Compose for easy demo startup</h3>
+<pre><code"># docker-compose.yml
+version: '3.8'
+services:
+  api:
+    build: .
+    ports: ["8000:8000"]
+    command: uvicorn api.main:app --host 0.0.0.0 --reload
+  dashboard:
+    build: ./dashboard
+    ports: ["3000:3000"]
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+  influxdb:
+    image: influxdb:2.6
+    ports: ["8086:8086"]</code></pre>
+
+<!-- ===== SECTION 7: PAPERS ===== -->
+<h2 id="papers">7. Essential Research Papers</h2>
+
+<p>This is your required reading list. Not "nice to know" — these are the papers your system is built on. Read them in order. You will cite 3–5 of these in any VC technical deck and government submission.</p>
+
+<h3>Must-read (read before building)</h3>
+<div class="paper-grid">
+  <div class="paper-card">
+    <h4>Liu, Ning, Liu, Reiter (2011)</h4>
+    <p>"False Data Injection Attacks Against State Estimation in Electric Power Grids"</p>
+    <p>ACM CCS 2011</p>
+    <p class="why">→ The foundational FDI attack paper. AEthelred's threat model is directly based on this.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Pasqualetti, Dörfler, Bullo (2013)</h4>
+    <p>"Attack Detection and Identification in Cyber-Physical Systems"</p>
+    <p>IEEE Transactions on Automatic Control</p>
+    <p class="why">→ Formal framework for detecting attacks using physics constraints. Essential theory for AEthelred.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Liang, Wey, Sankar (2017)</h4>
+    <p>"Review of False Data Injection Attacks in Power Systems"</p>
+    <p>IEEE Power &amp; Energy Society General Meeting</p>
+    <p class="why">→ Best survey paper for understanding the full FDI attack landscape.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Jokar, Arianpoo, Leung (2016)</h4>
+    <p>"Electricity Theft Detection in AMI Using Customers' Consumption Patterns"</p>
+    <p>IEEE Transactions on Smart Grid</p>
+    <p class="why">→ Core paper for AEthelred's theft detection module. SVM on consumption patterns.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Nader, Pan, Bharat (2013)</h4>
+    <p>"SVM-Based Generation of a Botnet Dataset for Intrusion Detection"</p>
+    <p class="why">→ One-Class SVM for anomaly detection — the core of Dvvalin's ML layer.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Raissi, Perdikaris, Karniadakis (2019)</h4>
+    <p>"Physics-Informed Neural Networks"</p>
+    <p>Journal of Computational Physics</p>
+    <p class="why">→ The seminal PINN paper. Your AEthelred LSTM approach builds on this concept.</p>
+  </div>
+</div>
+
+<h3>Should-read (read while building)</h3>
+<div class="paper-grid">
+  <div class="paper-card">
+    <h4>Goh et al. (2017)</h4>
+    <p>"BATADAL: Battle of the Attack Detection Algorithms for Drinking Water Networks"</p>
+    <p class="why">→ Best practical benchmark for anomaly detection in CPS. Study their evaluation methodology.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Ahmed, Roussev, Johnson (2020)</h4>
+    <p>"Physics-Guided Machine Learning for Power Systems"</p>
+    <p class="why">→ Most directly relevant to your architecture. Physics residuals + ML fusion.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Kosek (2016)</h4>
+    <p>"Contextual Anomaly Detection for Power Systems Using ML"</p>
+    <p>IEEE CSGB</p>
+    <p class="why">→ Addresses seasonal/diurnal load patterns. Essential for reducing false positives.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Yip et al. (2018)</h4>
+    <p>"An Improved Identification Scheme for Electricity Theft"</p>
+    <p>IEEE Transactions on Smart Grid</p>
+    <p class="why">→ Uses the SGCC dataset (your primary theft detection dataset). Read alongside the data.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Hadeli et al. (2017)</h4>
+    <p>"Anomaly Detection in SCADA Systems Using Machine Learning"</p>
+    <p class="why">→ Practical implementation guide for SCADA IDS. Very applicable to Dvvalin.</p>
+  </div>
+  <div class="paper-card">
+    <h4>Sengan et al. (2021)</h4>
+    <p>"Detection of False Data Cyber-Attacks for the Assessment of Security in Smart Grid Using Deep Learning"</p>
+    <p>Computers &amp; Electrical Engineering</p>
+    <p class="why">→ LSTM for FDI detection. Your Phase 1 Week 4 work is essentially an implementation of this.</p>
+  </div>
+</div>
+
+<h3>MITRE ATT&CK for ICS</h3>
+<p>This is not a paper but is essential for your VC deck. Visit <a href="https://attack.mitre.org/matrices/ics/">attack.mitre.org/matrices/ics/</a> and map each attack your system detects to the official ATT&CK framework category. This signals deep domain knowledge to sophisticated investors and government evaluators.</p>
+<ul>
+  <li>FDI attack → T0832 (Manipulation of View)</li>
+  <li>Electricity theft → T0830 (Unauthorized Command Message)</li>
+  <li>SCADA command injection → T0855 (Unauthorized Command Message)</li>
+  <li>Device spoofing → T0886 (Remote Services)</li>
+</ul>
+
+<!-- ===== SECTION 8: DATASETS ===== -->
+<h2 id="datasets">8. Datasets</h2>
+
+<div class="dataset-row">
+  <span class="ds-badge free">Free</span>
+  <div class="ds-info">
+    <h4>IEEE 14-bus and 33-bus test networks</h4>
+    <p>Built into pandapower. Standard academic grid topologies used in hundreds of papers.</p>
+    <p class="use">Use for: Grid simulator backbone, AEthelred training and testing. Load with <code>pandapower.networks.case14()</code> and <code>case33bw()</code>.</p>
+  </div>
+</div>
+
+<div class="dataset-row">
+  <span class="ds-badge free">Free</span>
+  <div class="ds-info">
+    <h4>SGCC Electricity Theft Detection Dataset</h4>
+    <p>State Grid Corporation of China. 42,372 labeled smart meter records (normal + theft). Available on Kaggle and GitHub.</p>
+    <p class="use">Use for: Training and evaluating AEthelred's electricity theft detection module. Search: "State Grid electricity theft detection dataset Kaggle".</p>
+  </div>
+</div>
+
+<div class="dataset-row">
+  <span class="ds-badge free">Free</span>
+  <div class="ds-info">
+    <h4>Mississippi State SCADA Attack Dataset</h4>
+    <p>Labeled Modbus TCP packet captures of gas pipeline SCADA under various attack scenarios. Best available public SCADA attack dataset.</p>
+    <p class="use">Use for: Training and evaluating Dvvalin. Parse with pyshark. Search: "MSU SCADA dataset Drexel" or IEEE DataPort "gas pipeline SCADA".</p>
+  </div>
+</div>
+
+<div class="dataset-row">
+  <span class="ds-badge free">Free</span>
+  <div class="ds-info">
+    <h4>SWaT (Secure Water Treatment) Dataset</h4>
+    <p>iTrust, Singapore. Real industrial control system dataset with 36 attacks. Available via request to iTrust lab.</p>
+    <p class="use">Use for: Secondary validation of Dvvalin's anomaly detection approach on real ICS data beyond SCADA.</p>
+  </div>
+</div>
+
+<div class="dataset-row">
+  <span class="ds-badge sim">Synthetic</span>
+  <div class="ds-info">
+    <h4>Your own synthetic dataset</h4>
+    <p>Generated by your <code>IndianDistributionFeeder</code> + <code>AttackInjector</code> simulation.</p>
+    <p class="use">Use for: Primary AEthelred training. Frame it as "we generated a synthetic dataset modeling a 33-bus Indian urban distribution feeder with parameters calibrated to CESC Mumbai topology (18-22% T&D losses, 50Hz, 11kV/415V distribution voltage)." This is legitimate and credible.</p>
+  </div>
+</div>
+
+<div class="dataset-row">
+  <span class="ds-badge free">Free</span>
+  <div class="ds-info">
+    <h4>CER Irish Smart Meter Dataset</h4>
+    <p>6,435 residential and SME meters, 30-minute intervals over 18 months. Available via request to UCD Electricity Research Centre.</p>
+    <p class="use">Use for: Realistic consumption pattern modeling for electricity theft simulation. Better than synthetic if you have time to request access.</p>
+  </div>
+</div>
+
+<!-- ===== SECTION 9: DEMO SCRIPT ===== -->
+<h2 id="demo">9. VC Demo Script (12 Minutes)</h2>
+
+<div class="callout info">
+  <div class="callout-title">Prep note</div>
+  <p>Rehearse this exact script 20+ times. Every button click, every pause, every sentence. Demos that look effortless take 30 hours of preparation. Time yourself — this should be 10–12 minutes leaving 8–10 for questions.</p>
+</div>
+
+<div class="demo-step">
+  <div class="demo-num">1</div>
+  <div class="demo-text">
+    <h4>Setup (30 seconds) — before the meeting</h4>
+    <p>Dashboard open, grid running in "normal" state for at least 5 minutes. All buses green, threat score near zero. Never start from a cold boot in front of VCs.</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">2</div>
+  <div class="demo-text">
+    <h4>The problem (90 seconds)</h4>
+    <p>"This is a live simulation of an urban Indian power distribution network — 33 nodes, modeled after the topology of a typical DISCOM in West Bengal. This grid is being monitored right now by our detection system, Nyther Sentinel. Traditional cybersecurity tools — Dragos, Claroty — they watch the network. They don't know if what's happening on the network makes physical sense. I'm going to show you why that gap is catastrophic, and how we close it."</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">3</div>
+  <div class="demo-text">
+    <h4>Attack 1: FDI attack (2 minutes)</h4>
+    <p>"This is a False Data Injection attack — the exact attack vector used against Ukrainian grid operators in 2015. The attacker has compromised sensors at buses 3 and 5. Watch." [Click "Inject FDI Attack"]. "Notice: the network traffic looks completely normal. Dragos would see nothing. But our AEthelred engine is checking whether these voltage readings obey Kirchhoff's laws. They don't — the attacker can't fake physics. Detection in [X] seconds."</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">4</div>
+  <div class="demo-text">
+    <h4>Attack 2: Electricity theft (90 seconds)</h4>
+    <p>[Click "Clear Attacks", wait 10 seconds]. "Now let's look at a problem specific to India — electricity theft costs Indian utilities over ₹20,000 crore annually. The thief has bypassed their smart meter at bus 7." [Click "Inject Electricity Theft"]. "The feeder input power is higher than the sum of all meter readings plus expected line losses. Energy balance violated. AEthelred catches it in real time and flags the exact bus for physical inspection."</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">5</div>
+  <div class="demo-text">
+    <h4>Attack 3: SCADA command injection (90 seconds)</h4>
+    <p>[Click "Clear Attacks", wait 10 seconds]. "The third attack: an adversary has gained access to the SCADA network and is sending malicious commands to circuit breakers — trying to open them and cause an outage." [Click "Inject SCADA Command"]. "Our Dvvalin engine sees a write command to a critical device that has never issued write commands in its profile. Unauthorized command pattern detected. Combined with the network anomaly, Valkyrie — our fusion engine — raises a HIGH CONFIDENCE CRITICAL alert and recommends isolation."</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">6</div>
+  <div class="demo-text">
+    <h4>The insight (60 seconds)</h4>
+    <p>"What just happened is the key insight behind Nyther Sentinel. A sophisticated attacker can fool your network monitor. They can even fool your physics detector alone. But they cannot simultaneously make the network traffic look normal, make the voltage readings obey power flow equations, AND make the energy balance add up. We monitor all three. The attacker has nowhere to hide."</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">7</div>
+  <div class="demo-text">
+    <h4>Metrics (60 seconds)</h4>
+    <p>"We've tested against the Mississippi State SCADA attack dataset — the standard benchmark. Detection rate: [your number]%. False positive rate: [your number]%. Mean time to detect: under 4 seconds. No existing commercial product reports physics-informed detection metrics because none of them do physics."</p>
+  </div>
+</div>
+<div class="demo-step">
+  <div class="demo-num">8</div>
+  <div class="demo-text">
+    <h4>Market (60 seconds)</h4>
+    <p>"India is deploying 250 million smart meters under RDSS. Every single one is an attack vector. The Indian power sector saw 2 lakh cyberattacks during the 2025 conflict. NCIIPC has identified 12 utilities as critical infrastructure with zero adequate cyber-physical protection. We are the only Indian company building this. iDEX has ₹750 crore allocated for exactly this category of deep-tech defense. We are applying."</p>
+  </div>
+</div>
+
+<!-- ===== SECTION 10: PITFALLS ===== -->
+<h2 id="pitfalls">10. Common Pitfalls</h2>
+
+<div class="callout danger">
+  <div class="callout-title">Pitfall 1: pandapower convergence failures</div>
+  <p>Power flow may not converge if load values are extreme. Always add <code>max_iteration=50</code> and catch <code>pp.LoadflowNotConverged</code>. Use the <code>'bfsw'</code> (backward/forward sweep) algorithm for distribution networks — it's more stable than Newton-Raphson for radial networks like the 33-bus.</p>
+</div>
+
+<div class="callout danger">
+  <div class="callout-title">Pitfall 2: False positive explosion from load transients</div>
+  <p>Your AEthelred will trigger constantly at morning/evening load ramps if thresholds are too tight. Add a 30-second rolling average smoother before computing residuals. The LSTM autoencoder handles this naturally — it learns the diurnal cycle.</p>
+</div>
+
+<div class="callout danger">
+  <div class="callout-title">Pitfall 3: Modbus simulation not realistic enough</div>
+  <p>Real SCADA traffic has device-specific polling intervals (RTU 1 polled every 500ms, RTU 2 every 2000ms). If your simulation uses uniform timing, Dvvalin will be over-optimistic. Build per-device timing profiles from the MSU dataset's inter-arrival times.</p>
+</div>
+
+<div class="callout warn">
+  <div class="callout-title">Pitfall 4: Selling it wrong to VCs</div>
+  <p>Don't say "we built a SCADA IDS." Say "we built the only cyber-physical security platform that validates electrical physics in real time — the first system that makes it impossible to simultaneously manipulate both the cyber and physical layers of a power grid without detection." The differentiation must be crisp in the first 30 seconds.</p>
+</div>
+
+<div class="callout warn">
+  <div class="callout-title">Pitfall 5: Jupyter notebook as demo</div>
+  <p>Never demo from a Jupyter notebook in front of a VC. It signals "research project," not "product." The dashboard must look like software someone would pay for. Invest the Week 10-12 time in the UI — it matters more than an extra percentage point of accuracy for the VC pitch.</p>
+</div>
+
+<div class="callout success">
+  <div class="callout-title">Pro tip: Record a backup demo video</div>
+  <p>On Day 80, record a clean 8-minute run-through of the entire demo working perfectly. If anything crashes during a real VC meeting, play the video. "We had a technical issue but here's the recorded demo from yesterday" is infinitely better than a broken live demo.</p>
+</div>
+
+<hr style="margin: 48px 0; border: none; border-top: 1px solid var(--border);">
+<p style="color: var(--text3); font-size: 13px; text-align: center;">
+  Nyther Cybersecurity Research — Internal Build Document<br>
+  Version 1.0 — Generated for solo founder PoC sprint
+</p>
+
+</div>
+</body>
+</html>

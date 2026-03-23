@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nyther Sentinel — Grid Analytics & Security</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-primary:#ffffff;--bg-secondary:#f7f6f3;--bg-tertiary:#efede8;
+  --text-primary:#1a1a18;--text-secondary:#6b6a64;--text-tertiary:#9e9c96;
+  --border-light:rgba(0,0,0,0.10);--border-mid:rgba(0,0,0,0.18);
+  --success:#0f6e56;--success-bg:#e1f5ee;--success-border:#9fe1cb;
+  --warning:#854f0b;--warning-bg:#faeeda;--warning-border:#fac775;
+  --danger:#a32d2d;--danger-bg:#fcebeb;--danger-border:#f7c1c1;
+  --info:#185fa5;--info-bg:#e6f1fb;--info-border:#b5d4f4;
+  --radius-sm:6px;--radius-md:8px;--radius-lg:12px;
+  --font:system-ui,-apple-system,sans-serif;--mono:ui-monospace,monospace;
+}
+@media(prefers-color-scheme:dark){
+:root{
+  --bg-primary:#1c1c1a;--bg-secondary:#242422;--bg-tertiary:#2c2c2a;
+  --text-primary:#e8e6e0;--text-secondary:#a8a69e;--text-tertiary:#6e6c66;
+  --border-light:rgba(255,255,255,0.08);--border-mid:rgba(255,255,255,0.14);
+  --success:#5dcaa5;--success-bg:#04342c;--success-border:#085041;
+  --warning:#ef9f27;--warning-bg:#412402;--warning-border:#633806;
+  --danger:#f09595;--danger-bg:#501313;--danger-border:#791f1f;
+  --info:#85b7eb;--info-bg:#042c53;--info-border:#0c447c;
+}}
+body{font-family:var(--font);background:var(--bg-tertiary);color:var(--text-primary);font-size:14px;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* ── Layout ── */
+.shell{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:48px;background:var(--bg-primary);border-bottom:0.5px solid var(--border-light);flex-shrink:0;gap:16px}
+.topbar-left{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo{font-size:14px;font-weight:500}
+.logo em{font-style:normal;color:var(--text-secondary);font-weight:400;font-size:12px}
+.sys-dot{width:7px;height:7px;border-radius:50%;background:var(--success);flex-shrink:0}
+.sys-dot.warn{background:var(--warning)}
+.sys-dot.crit{background:var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.nav-tabs{display:flex;align-items:center;gap:2px;overflow-x:auto;flex:1;justify-content:center}
+.nav-tab{padding:6px 14px;font-size:12px;font-weight:400;color:var(--text-secondary);background:none;border:none;cursor:pointer;border-radius:var(--radius-sm);white-space:nowrap;transition:background .12s,color .12s}
+.nav-tab:hover{background:var(--bg-secondary);color:var(--text-primary)}
+.nav-tab.active{background:var(--bg-secondary);color:var(--text-primary);font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.top-meta{font-size:11px;color:var(--text-tertiary);font-family:var(--mono)}
+.clock{font-size:12px;color:var(--text-secondary);font-family:var(--mono)}
+
+.content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel{display:none}.panel.active{display:contents}
+
+/* ── Engine strip ── */
+.engine-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(max-width:600px){.engine-strip{grid-template-columns:1fr}}
+.engine-card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);padding:12px 14px}
+.eng-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.eng-name{font-size:12px;font-weight:500}
+.eng-badge{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500}
+.badge-ok{background:var(--success-bg);color:var(--success);border:0.5px solid var(--success-border)}
+.badge-warn{background:var(--warning-bg);color:var(--warning);border:0.5px solid var(--warning-border)}
+.badge-crit{background:var(--danger-bg);color:var(--danger);border:0.5px solid var(--danger-border)}
+.eng-score{font-size:22px;font-weight:500;font-family:var(--mono);margin-bottom:4px}
+.eng-bar{height:4px;border-radius:2px;background:var(--bg-tertiary);overflow:hidden}
+.eng-fill{height:100%;border-radius:2px;transition:width .8s ease,background .5s}
+.eng-sub{font-size:10px;color:var(--text-tertiary);margin-top:5px}
+
+/* ── Cards grid ── */
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:900px){.cards-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.cards-grid{grid-template-columns:1fr}}
+.stat-card{background:var(--bg-secondary);border-radius:var(--radius-md);padding:12px 14px}
+.stat-label{font-size:11px;color:var(--text-tertiary);margin-bottom:4px}
+.stat-value{font-size:20px;font-weight:500;font-family:var(--mono)}
+.stat-unit{font-size:11px;color:var(--text-tertiary);margin-left:2px}
+.stat-sub{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.stat-card.ok .stat-value{color:var(--success)}
+.stat-card.warn .stat-value{color:var(--warning)}
+.stat-card.crit .stat-value{color:var(--danger)}
+
+/* ── Two-col layout ── */
+.two-col{display:grid;grid-template-columns:1fr 300px;gap:8px}
+@media(max-width:800px){.two-col{grid-template-columns:1fr}}
+.card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid var(--border-light)}
+.card-title{font-size:12px;font-weight:500;color:var(--text-secondary)}
+.card-badge{font-size:10px;color:var(--text-tertiary)}
+.card-body{padding:12px 14px}
+
+/* ── Alert feed ── */
+.alert-item{padding:9px 12px;border-radius:var(--radius-md);border:0.5px solid var(--border-light);margin-bottom:6px;border-left:3px solid var(--border-mid)}
+.alert-item.crit{border-left-color:var(--danger)}
+.alert-item.high{border-left-color:var(--warning)}
+.alert-item.med{border-left-color:var(--info)}
+.alert-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.alert-lv{font-size:10px;font-weight:500;padding:1px 6px;border-radius:999px}
+.lv-crit{background:var(--danger-bg);color:var(--danger)}
+.lv-high{background:var(--warning-bg);color:var(--warning)}
+.lv-med{background:var(--info-bg);color:var(--info)}
+.alert-ts{font-size:10px;color:var(--text-tertiary);font-family:var(--mono)}
+.alert-type{font-size:12px;font-weight:500}
+.alert-desc{font-size:11px;color:var(--text-secondary)}
+.alert-mitre{font-size:10px;font-family:var(--mono);color:var(--text-tertiary);margin-top:2px}
+.empty-state{padding:24px;text-align:center;font-size:12px;color:var(--text-tertiary)}
+
+/* ── Demo controls ── */
+.demo-btn{width:100%;padding:8px 12px;text-align:left;font-size:12px;border-radius:var(--radius-md);border:0.5px solid var(--border-mid);background:var(--bg-primary);color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;transition:background .12s}
+.demo-btn:hover{background:var(--bg-secondary)}
+.demo-btn.active-atk{border-color:var(--danger);background:var(--danger-bg);color:var(--danger)}
+.demo-btn-label{font-weight:500}
+.demo-btn-sub{font-size:10px;color:var(--text-tertiary)}
+.demo-btn.active-atk .demo-btn-sub{color:var(--danger)}
+.demo-tag{font-size:10px;font-family:var(--mono);color:var(--text-tertiary)}
+.reset-btn{width:100%;padding:7px;font-size:11px;border-radius:var(--radius-md);border:0.5px solid var(--border-mid);background:var(--bg-primary);color:var(--text-secondary);cursor:pointer;margin-top:4px;transition:background .12s}
+.reset-btn:hover{background:var(--bg-secondary)}
+
+/* ── Score bars ── */
+.score-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--border-light)}
+.score-row:last-child{border-bottom:none}
+.score-name{font-size:11px;color:var(--text-secondary);width:100px;flex-shrink:0}
+.score-track{flex:1;height:5px;background:var(--bg-tertiary);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;border-radius:3px;transition:width .8s ease,background .5s}
+.score-val{font-size:11px;font-family:var(--mono);color:var(--text-primary);min-width:44px;text-align:right}
+
+/* ── Grid map ── */
+.grid-map-wrap{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden}
+.grid-map-header{padding:10px 14px;border-bottom:0.5px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+.legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-secondary)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.map-container{padding:16px;overflow-x:auto}
+.grid-svg-wrap{min-width:600px}
+
+/* ── Analytics charts ── */
+.charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(max-width:700px){.charts-grid{grid-template-columns:1fr}}
+.chart-card{background:var(--bg-primary);border:0.5px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden}
+.chart-body{padding:14px;height:220px;position:relative}
+
+/* ── Health table ── */
+.health-table{width:100%;border-collapse:collapse;font-size:12px}
+.health-table th{padding:8px 12px;text-align:left;font-size:10px;font-weight:500;color:var(--text-tertiary);border-bottom:0.5px solid var(--border-light);letter-spacing:.04em;text-transform:uppercase}
+.health-table td{padding:8px 12px;border-bottom:0.5px solid var(--border-light);color:var(--text-primary)}
+.health-table tr:last-child td{border-bottom:none}
+.health-table tr:hover td{background:var(--bg-secondary)}
+.pill{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500;display:inline-block}
+.pill-ok{background:var(--success-bg);color:var(--success)}
+.pill-warn{background:var(--warning-bg);color:var(--warning)}
+.pill-crit{background:var(--danger-bg);color:var(--danger)}
+.pill-info{background:var(--info-bg);color:var(--info)}
+.load-bar-wrap{width:80px;height:5px;background:var(--bg-tertiary);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
+.load-bar{height:100%;border-radius:3px}
+
+/* ── Management log ── */
+.log-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border-light)}
+.log-item:last-child{border-bottom:none}
+.log-ts{font-size:10px;font-family:var(--mono);color:var(--text-tertiary);flex-shrink:0;padding-top:1px}
+.log-action{font-size:12px;color:var(--text-primary)}
+.log-sub{font-size:11px;color:var(--text-secondary)}
+.log-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.li-ok{background:var(--success-bg);color:var(--success)}
+.li-warn{background:var(--warning-bg);color:var(--warning)}
+.li-info{background:var(--info-bg);color:var(--info)}
+
+/* ── Feeder bars ── */
+.feeder-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border-light)}
+.feeder-row:last-child{border-bottom:none}
+.feeder-name{font-size:12px;font-weight:500;width:80px;flex-shrink:0}
+.feeder-bar-wrap{flex:1;height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}
+.feeder-bar{height:100%;border-radius:4px;transition:width .8s ease}
+.feeder-meta{font-size:11px;font-family:var(--mono);color:var(--text-secondary);min-width:90px;text-align:right}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-mid);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="sys-dot" id="sys-dot"></div>
+    <span class="logo">Nyther Sentinel <em>v0.1 · CESC Mumbai feeder · IEEE 33-bus</em></span>
+  </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('overview',this)">Overview</button>
+    <button class="nav-tab" onclick="switchTab('gridmap',this)">Grid map</button>
+    <button class="nav-tab" onclick="switchTab('analytics',this)">Analytics</button>
+    <button class="nav-tab" onclick="switchTab('health',this)">Health</button>
+    <button class="nav-tab" onclick="switchTab('management',this)">Management</button>
+  </nav>
+  <div class="topbar-right">
+    <span class="top-meta">50.00 Hz</span>
+    <span class="top-meta">11 kV / 415 V</span>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ══════════════════════════════════════════════════════ OVERVIEW -->
+<div id="panel-overview" class="panel active">
+
+  <!-- Engine scores -->
+  <div class="engine-strip">
+    <div class="engine-card">
+      <div class="eng-top">
+        <span class="eng-name">AEthelred — physics IDS</span>
+        <span class="eng-badge badge-ok" id="ae-badge">normal</span>
+      </div>
+      <div class="eng-score" id="ae-score">0.021</div>
+      <div class="eng-bar"><div class="eng-fill" id="ae-fill" style="width:2%;background:var(--success)"></div></div>
+      <div class="eng-sub">Physics residual · PINN z-score · L-index</div>
+    </div>
+    <div class="engine-card">
+      <div class="eng-top">
+        <span class="eng-name">Dvvalin — SCADA network IDS</span>
+        <span class="eng-badge badge-ok" id="dv-badge">normal</span>
+      </div>
+      <div class="eng-score" id="dv-score">0.012</div>
+      <div class="eng-bar"><div class="eng-fill" id="dv-fill" style="width:1%;background:var(--success)"></div></div>
+      <div class="eng-sub">Behavioral · Replay · Honeypot · MITRE</div>
+    </div>
+    <div class="engine-card">
+      <div class="eng-top">
+        <span class="eng-name">Valkyrie — fused threat score</span>
+        <span class="eng-badge badge-ok" id="vk-badge">normal</span>
+      </div>
+      <div class="eng-score" id="vk-score">0.018</div>
+      <div class="eng-bar"><div class="eng-fill" id="vk-fill" style="width:2%;background:var(--success)"></div></div>
+      <div class="eng-sub">Confidence-weighted · corroboration bonus</div>
+    </div>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="cards-grid">
+    <div class="stat-card" id="card-freq">
+      <div class="stat-label">Frequency</div>
+      <div class="stat-value" id="val-freq">50.00<span class="stat-unit">Hz</span></div>
+      <div class="stat-sub" id="sub-freq">nominal ±0.2 Hz</div>
+    </div>
+    <div class="stat-card" id="card-load">
+      <div class="stat-label">Total feeder load</div>
+      <div class="stat-value" id="val-load">1.94<span class="stat-unit">MW</span></div>
+      <div class="stat-sub" id="sub-load">rated 3.0 MW — 65%</div>
+    </div>
+    <div class="stat-card" id="card-ntl">
+      <div class="stat-label">NTL ratio</div>
+      <div class="stat-value" id="val-ntl">0.00<span class="stat-unit">%</span></div>
+      <div class="stat-sub">threshold 5% — clean</div>
+    </div>
+    <div class="stat-card" id="card-pf">
+      <div class="stat-label">Power factor</div>
+      <div class="stat-value" id="val-pf">0.89</div>
+      <div class="stat-sub">target ≥ 0.90</div>
+    </div>
+    <div class="stat-card" id="card-res">
+      <div class="stat-label">Max physics residual</div>
+      <div class="stat-value" id="val-res">0.022<span class="stat-unit">pu</span></div>
+      <div class="stat-sub">threshold 0.037 pu</div>
+    </div>
+    <div class="stat-card" id="card-li">
+      <div class="stat-label">L-index (stability)</div>
+      <div class="stat-value" id="val-li">0.31</div>
+      <div class="stat-sub">collapse at 1.0 — stable</div>
+    </div>
+    <div class="stat-card" id="card-loss">
+      <div class="stat-label">Technical losses</div>
+      <div class="stat-value" id="val-loss">18.2<span class="stat-unit">%</span></div>
+      <div class="stat-sub">Indian avg 18–22%</div>
+    </div>
+    <div class="stat-card" id="card-alerts">
+      <div class="stat-label">Active alerts</div>
+      <div class="stat-value" id="val-alerts">0</div>
+      <div class="stat-sub" id="sub-alerts">system nominal</div>
+    </div>
+  </div>
+
+  <!-- Main two-col -->
+  <div class="two-col">
+    <!-- Left: sparkline + alerts -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Anomaly score — 80s rolling</span><span class="card-badge" id="spark-status">nominal</span></div>
+        <div class="card-body" style="padding:10px 14px;height:140px;position:relative">
+          <canvas id="sparkChart" style="width:100%;height:100%"></canvas>
+        </div>
+      </div>
+      <div class="card" style="flex:1">
+        <div class="card-header"><span class="card-title">Alert feed</span><span class="card-badge" id="alert-count-badge">0 alerts</span></div>
+        <div style="padding:8px;max-height:300px;overflow-y:auto" id="alert-list">
+          <div class="empty-state">No alerts — system nominal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: demo + scores -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Detection signals</span></div>
+        <div class="card-body">
+          <div class="score-row">
+            <span class="score-name">Physics residual</span>
+            <div class="score-track"><div class="score-fill" id="sf-res" style="width:2%;background:var(--success)"></div></div>
+            <span class="score-val" id="sv-res">0.022</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">PINN z-score</span>
+            <div class="score-track"><div class="score-fill" id="sf-pinn" style="width:1%;background:var(--success)"></div></div>
+            <span class="score-val" id="sv-pinn">0.97σ</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">Isolation Forest</span>
+            <div class="score-track"><div class="score-fill" id="sf-if" style="width:30%;background:var(--success)"></div></div>
+            <span class="score-val" id="sv-if">0.31</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">NTL ratio</span>
+            <div class="score-track"><div class="score-fill" id="sf-ntl" style="width:0%;background:var(--success)"></div></div>
+            <span class="score-val" id="sv-ntl">0.00%</span>
+          </div>
+          <div class="score-row">
+            <span class="score-name">Fast window</span>
+            <div class="score-track"><div class="score-fill" id="sf-fast" style="width:60%;background:var(--warning)"></div></div>
+            <span class="score-val" id="sv-fast">0.60</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Demo attack injection</span></div>
+        <div class="card-body">
+          <button class="demo-btn" id="btn-fdi" onclick="injectAtk('fdi')">
+            <div><div class="demo-btn-label">FDI attack</div><div class="demo-btn-sub">buses 3, 5 · +15% voltage inflation</div></div>
+            <span class="demo-tag">T0832</span>
+          </button>
+          <button class="demo-btn" id="btn-theft" onclick="injectAtk('theft')">
+            <div><div class="demo-btn-label">Electricity theft</div><div class="demo-btn-sub">bus 7 · 0.5 MW meter bypass</div></div>
+            <span class="demo-tag">T0852</span>
+          </button>
+          <button class="demo-btn" id="btn-liu" onclick="injectAtk('liu')">
+            <div><div class="demo-btn-label">Liu 2011 stealthy FDI</div><div class="demo-btn-sub">bypasses chi-squared — PINN detects</div></div>
+            <span class="demo-tag">T0832</span>
+          </button>
+          <button class="reset-btn" onclick="resetAtk()">reset to normal</button>
+          <div id="explain-box" style="margin-top:10px;padding:10px;background:var(--bg-secondary);border-radius:var(--radius-md);font-size:11px;color:var(--text-secondary);line-height:1.6;border:0.5px solid var(--border-light)">
+            System nominal. All physics residuals within calibrated threshold.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /overview -->
+
+<!-- ══════════════════════════════════════════════════════ GRID MAP -->
+<div id="panel-gridmap" class="panel">
+  <div class="grid-map-wrap">
+    <div class="grid-map-header">
+      <span class="card-title">Grid infrastructure — top view · 33-bus radial feeder</span>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--success)"></div>Normal</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--warning)"></div>Warning</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--danger)"></div>Attack / fault</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--info)"></div>Source / substation</div>
+      </div>
+    </div>
+    <div class="map-container">
+      <div class="grid-svg-wrap">
+        <svg id="grid-svg" viewBox="0 0 860 620" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">
+
+          <!-- Grid lines (background) -->
+          <defs>
+            <pattern id="grid-pat" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M40 0L0 0 0 40" fill="none" stroke="currentColor" stroke-width="0.3" opacity="0.15"/>
+            </pattern>
+          </defs>
+          <rect width="860" height="620" fill="url(#grid-pat)" color="var(--text-tertiary)"/>
+
+          <!-- MAIN SUBSTATION (Bus 0) -->
+          <g id="sub-main">
+            <rect x="360" y="20" width="80" height="52" rx="6" fill="var(--info-bg)" stroke="var(--info)" stroke-width="1.5"/>
+            <line x1="368" y1="28" x2="432" y2="64" stroke="var(--info)" stroke-width="1"/>
+            <line x1="432" y1="28" x2="368" y2="64" stroke="var(--info)" stroke-width="1"/>
+            <rect x="362" y="24" width="16" height="10" rx="2" fill="var(--info)" opacity=".5"/>
+            <rect x="382" y="24" width="16" height="10" rx="2" fill="var(--info)" opacity=".5"/>
+            <text x="400" y="84" text-anchor="middle" font-size="10" font-weight="500" fill="var(--info)">33 kV Substation</text>
+            <text x="400" y="96" text-anchor="middle" font-size="9" fill="var(--text-tertiary)" font-family="monospace">Bus 0 · slack</text>
+          </g>
+
+          <!-- METRIC LABELS next to substation -->
+          <g font-size="9" fill="var(--text-secondary)" font-family="monospace">
+            <text x="460" y="38">V: 1.000 pu</text>
+            <text x="460" y="51">P: 2.21 MW</text>
+            <text x="460" y="64">I: 116 A</text>
+          </g>
+
+          <!-- ═══ MAIN FEEDER TRUNK (buses 1-18) ═══ -->
+          <!-- Trunk line going right -->
+          <line id="line-trunk" x1="440" y1="46" x2="760" y2="46" stroke="var(--success)" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- Bus 1 - Junction (start of branch A) -->
+          <g id="node-1" class="map-node" data-bus="1">
+            <circle cx="500" cy="46" r="7" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+            <text x="500" y="36" text-anchor="middle" font-size="8" fill="var(--text-secondary)">B1</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="508" y="30">0.997 pu</text><text x="508" y="40">0.41 MW</text>
+          </g>
+
+          <!-- Bus 2 - DTR 1 -->
+          <g id="node-2">
+            <rect x="546" y="36" width="26" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="552" cy="46" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="566" cy="46" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <text x="559" y="25" text-anchor="middle" font-size="8" fill="var(--text-secondary)">DTR-1</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="578" y="40">0.991 pu</text><text x="578" y="50">68%</text>
+          </g>
+
+          <!-- Bus 5 - DTR 2 -->
+          <g id="node-5">
+            <rect x="626" y="36" width="26" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="632" cy="46" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="646" cy="46" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <text x="639" y="25" text-anchor="middle" font-size="8" fill="var(--text-secondary)">DTR-2</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="658" y="40">0.985 pu</text><text x="658" y="50">72%</text>
+          </g>
+
+          <!-- End bus 18 -->
+          <g id="node-18">
+            <circle cx="760" cy="46" r="7" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+            <text x="760" y="36" text-anchor="middle" font-size="8" fill="var(--text-secondary)">B18</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="770" y="30">0.958 pu</text><text x="770" y="42">0.09 MW</text>
+          </g>
+
+          <!-- ═══ BRANCH A (buses 1 → 19-22) going down-left ═══ -->
+          <line id="line-a" x1="500" y1="53" x2="500" y2="160" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="500" y1="160" x2="380" y2="160" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- DTR on branch A -->
+          <g id="node-19">
+            <rect x="444" y="150" width="26" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="450" cy="160" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="464" cy="160" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <text x="457" y="142" text-anchor="middle" font-size="8" fill="var(--text-secondary)">DTR-3</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="476" y="155">0.979 pu</text><text x="476" y="165">81%</text>
+          </g>
+
+          <!-- Load point B20 -->
+          <rect x="373" y="152" width="14" height="14" rx="2" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1" id="node-20"/>
+          <line x1="380" y1="152" x2="380" y2="190" stroke="var(--success)" stroke-width="1" stroke-dasharray="3 2"/>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="388" y="188">B20 · 0.35 MW</text>
+          </g>
+
+          <!-- ═══ BRANCH B (bus 2 → 7-15) going straight down ═══ -->
+          <line id="line-b" x1="559" y1="56" x2="559" y2="280" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Buses 7, 9, 12 along branch B -->
+          <g id="node-7">
+            <circle cx="559" cy="140" r="6" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+            <text x="545" y="138" text-anchor="end" font-size="8" fill="var(--text-secondary)">B7</text>
+            <text x="545" y="148" text-anchor="end" font-size="8" fill="var(--text-secondary)" font-family="monospace">0.981</text>
+          </g>
+
+          <!-- Branch off B7 going left to buses 23-25 -->
+          <line x1="553" y1="140" x2="420" y2="140" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="460" cy="140" r="5" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="1.5"/>
+          <text x="460" y="128" text-anchor="middle" font-size="8" fill="var(--text-secondary)">B23</text>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="415" y="148">0.975 pu · 0.28 MW</text>
+          </g>
+
+          <!-- DTR on branch B -->
+          <g id="node-9">
+            <rect x="546" y="200" width="26" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="552" cy="210" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="566" cy="210" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <text x="559" y="192" text-anchor="middle" font-size="8" fill="var(--text-secondary)">DTR-4</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="578" y="205">0.969 pu</text><text x="578" y="215">74%</text>
+          </g>
+
+          <!-- End of branch B -->
+          <circle cx="559" cy="280" r="6" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+          <text x="545" y="282" text-anchor="end" font-size="8" fill="var(--text-secondary)">B15</text>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="571" y="278">0.962 pu</text><text x="571" y="288">0.06 MW</text>
+          </g>
+
+          <!-- ═══ BRANCH C (bus 5 → 26-33) going straight down ═══ -->
+          <line id="line-c" x1="639" y1="56" x2="639" y2="380" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Buses along branch C -->
+          <g id="node-26">
+            <circle cx="639" cy="120" r="6" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+            <text x="625" y="118" text-anchor="end" font-size="8" fill="var(--text-secondary)">B26</text>
+            <text x="625" y="128" text-anchor="end" font-size="8" fill="var(--text-secondary)" font-family="monospace">0.982</text>
+          </g>
+
+          <!-- DTR on branch C, bus 28 -->
+          <g id="node-28">
+            <rect x="626" y="190" width="26" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="632" cy="200" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="646" cy="200" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <text x="639" y="182" text-anchor="middle" font-size="8" fill="var(--text-secondary)">DTR-5</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="658" y="196">0.970 pu</text><text x="658" y="206">91%</text><text x="658" y="216" fill="var(--warning)">⚠ overload</text>
+          </g>
+
+          <!-- Warning bus 30 (overloaded) -->
+          <g id="node-30">
+            <circle cx="639" cy="270" r="6" fill="var(--warning)" stroke="var(--bg-primary)" stroke-width="2"/>
+            <text x="625" y="268" text-anchor="end" font-size="8" fill="var(--warning)" font-weight="500">B30</text>
+            <text x="625" y="278" text-anchor="end" font-size="8" fill="var(--text-secondary)" font-family="monospace">0.965</text>
+          </g>
+
+          <!-- End bus 33 -->
+          <circle cx="639" cy="380" r="7" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2" id="node-33"/>
+          <text x="625" y="380" text-anchor="end" font-size="8" fill="var(--text-secondary)">B33</text>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="651" y="375">0.958 pu</text><text x="651" y="385">0.04 MW</text>
+          </g>
+
+          <!-- ═══ SECOND TRUNK going left from bus 0 ═══ -->
+          <line x1="360" y1="46" x2="100" y2="46" stroke="var(--success)" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- Bus 3 (attack target, FDI) -->
+          <circle id="node-3" cx="280" cy="46" r="7" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+          <text x="280" y="36" text-anchor="middle" font-size="8" fill="var(--text-secondary)">B3</text>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="290" y="30">0.988 pu</text><text x="290" y="42">0.62 MW</text>
+          </g>
+
+          <!-- Bus 6 DTR left side -->
+          <g>
+            <rect x="146" y="36" width="26" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="152" cy="46" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <circle cx="166" cy="46" r="5" fill="none" stroke="var(--success)" stroke-width="1"/>
+            <text x="159" y="26" text-anchor="middle" font-size="8" fill="var(--text-secondary)">DTR-6</text>
+          </g>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="60" y="40">0.978 pu</text><text x="60" y="50">66%</text>
+          </g>
+
+          <!-- Branch down from bus 3 (bus 7 theft area) -->
+          <line x1="280" y1="53" x2="280" y2="220" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Bus 7 theft target -->
+          <circle id="node-7b" cx="280" cy="140" r="7" fill="var(--success)" stroke="var(--bg-primary)" stroke-width="2"/>
+          <text x="280" y="130" text-anchor="middle" font-size="8" fill="var(--text-secondary)">B7</text>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="292" y="135">0.981 pu</text>
+            <text x="292" y="145">0.52 MW</text>
+          </g>
+
+          <!-- Consumer loads hanging off bus 7 -->
+          <line x1="280" y1="147" x2="280" y2="200" stroke="var(--success)" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="266" y="200" width="28" height="20" rx="3" fill="var(--success-bg)" stroke="var(--success)" stroke-width="1"/>
+          <text x="280" y="214" text-anchor="middle" font-size="8" fill="var(--success)">Load</text>
+          <g font-size="8" fill="var(--text-secondary)" font-family="monospace">
+            <text x="300" y="207">Consumer</text>
+            <text x="300" y="217">0.50 MW metered</text>
+          </g>
+
+          <!-- Section labels -->
+          <text x="430" y="115" font-size="10" font-weight="500" fill="var(--text-tertiary)" text-anchor="middle">Branch A</text>
+          <text x="600" y="100" font-size="10" font-weight="500" fill="var(--text-tertiary)" text-anchor="middle">Branch B</text>
+          <text x="700" y="100" font-size="10" font-weight="500" fill="var(--text-tertiary)" text-anchor="middle">Branch C</text>
+
+          <!-- Feeder labels -->
+          <text x="170" y="15" font-size="10" font-weight="500" fill="var(--text-tertiary)">←  Feeder 2 (11 kV)</text>
+          <text x="520" y="15" font-size="10" font-weight:"500" fill="var(--text-tertiary)">Feeder 1 (11 kV)  →</text>
+
+          <!-- Voltage gradient bar at bottom -->
+          <text x="30" y="430" font-size="9" fill="var(--text-tertiary)">Voltage profile along main feeder:</text>
+          <rect x="30" y="440" width="200" height="8" rx="4" fill="var(--success-bg)" stroke="var(--success-border)" stroke-width="0.5"/>
+          <rect x="230" y="440" width="100" height="8" rx="0" fill="var(--warning-bg)" stroke="var(--warning-border)" stroke-width="0.5"/>
+          <rect x="330" y="440" width="60" height="8" rx="4" fill="var(--danger-bg)" stroke="var(--danger-border)" stroke-width="0.5" rx="0" style="border-radius:0 4px 4px 0"/>
+          <text x="130" y="458" text-anchor="middle" font-size="8" fill="var(--success)">1.00 – 0.97 pu</text>
+          <text x="280" y="458" text-anchor="middle" font-size="8" fill="var(--warning)">0.97 – 0.95 pu</text>
+          <text x="360" y="458" text-anchor="middle" font-size="8" fill="var(--danger)">&lt; 0.95 pu</text>
+          <text x="30" y="474" font-size="9" fill="var(--text-tertiary)">End-of-feeder buses: 0.958 pu (CESC threshold: 0.95 pu — within range)</text>
+
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feeder loading strip below map -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Feeder section loading</span><span class="card-badge">real-time</span></div>
+    <div class="card-body">
+      <div class="feeder-row">
+        <span class="feeder-name">Feeder 1</span>
+        <div class="feeder-bar-wrap"><div class="feeder-bar" id="fb-1" style="width:72%;background:var(--success)"></div></div>
+        <span class="feeder-meta" id="fm-1">72% · 1.34 MW</span>
+      </div>
+      <div class="feeder-row">
+        <span class="feeder-name">Branch A</span>
+        <div class="feeder-bar-wrap"><div class="feeder-bar" id="fb-a" style="width:58%;background:var(--success)"></div></div>
+        <span class="feeder-meta" id="fm-a">58% · 0.48 MW</span>
+      </div>
+      <div class="feeder-row">
+        <span class="feeder-name">Branch B</span>
+        <div class="feeder-bar-wrap"><div class="feeder-bar" id="fb-b" style="width:74%;background:var(--success)"></div></div>
+        <span class="feeder-meta" id="fm-b">74% · 0.62 MW</span>
+      </div>
+      <div class="feeder-row">
+        <span class="feeder-name">Branch C</span>
+        <div class="feeder-bar-wrap"><div class="feeder-bar" id="fb-c" style="width:91%;background:var(--warning)"></div></div>
+        <span class="feeder-meta" id="fm-c">91% · 0.76 MW ⚠</span>
+      </div>
+      <div class="feeder-row">
+        <span class="feeder-name">Feeder 2</span>
+        <div class="feeder-bar-wrap"><div class="feeder-bar" id="fb-2" style="width:65%;background:var(--success)"></div></div>
+        <span class="feeder-meta" id="fm-2">65% · 0.87 MW</span>
+      </div>
+    </div>
+  </div>
+</div><!-- /gridmap -->
+
+<!-- ══════════════════════════════════════════════════════ ANALYTICS -->
+<div id="panel-analytics" class="panel">
+
+  <div class="cards-grid">
+    <div class="stat-card">
+      <div class="stat-label">Today's energy delivered</div>
+      <div class="stat-value">31.4<span class="stat-unit">MWh</span></div>
+      <div class="stat-sub">↑ 3.2% vs yesterday</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Peak load today</div>
+      <div class="stat-value">2.61<span class="stat-unit">MW</span></div>
+      <div class="stat-sub">at 20:34 — evening peak</div>
+    </div>
+    <div class="stat-card warn" id="card-ntl-an">
+      <div class="stat-label">NTL (last 30 days)</div>
+      <div class="stat-value">6.8<span class="stat-unit">%</span></div>
+      <div class="stat-sub">above 5% threshold</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg power factor</div>
+      <div class="stat-value">0.88</div>
+      <div class="stat-sub">CERC target ≥ 0.90</div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">24-hour load curve (MW)</span><span class="card-badge">diurnal profile</span></div>
+      <div class="chart-body"><canvas id="loadChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Voltage profile — all buses</span><span class="card-badge">current snapshot</span></div>
+      <div class="chart-body"><canvas id="voltChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">NTL trend — last 30 days (%)</span><span class="card-badge">theft indicator</span></div>
+      <div class="chart-body"><canvas id="ntlChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Energy balance (MWh / day)</span><span class="card-badge">input vs billed</span></div>
+      <div class="chart-body"><canvas id="energyChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Line loading distribution (%)</span><span class="card-badge">thermal stress</span></div>
+      <div class="chart-body"><canvas id="lineChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-header"><span class="card-title">Frequency deviation (Hz)</span><span class="card-badge">last 10 minutes</span></div>
+      <div class="chart-body"><canvas id="freqChart"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- /analytics -->
+
+<!-- ══════════════════════════════════════════════════════ HEALTH -->
+<div id="panel-health" class="panel">
+
+  <div class="cards-grid">
+    <div class="stat-card ok">
+      <div class="stat-label">Protection relays</div>
+      <div class="stat-value">12/12</div>
+      <div class="stat-sub">all operational</div>
+    </div>
+    <div class="stat-card warn">
+      <div class="stat-label">Overloaded lines</div>
+      <div class="stat-value">1</div>
+      <div class="stat-sub">Branch C · 91% loading</div>
+    </div>
+    <div class="stat-card ok">
+      <div class="stat-label">DTR health</div>
+      <div class="stat-value">6/6</div>
+      <div class="stat-sub">all within thermal limits</div>
+    </div>
+    <div class="stat-card ok">
+      <div class="stat-label">Circuit breakers</div>
+      <div class="stat-value">8/8</div>
+      <div class="stat-sub">all responsive</div>
+    </div>
+  </div>
+
+  <!-- Equipment health table -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Equipment health register</span><span class="card-badge">live</span></div>
+    <div style="overflow-x:auto">
+      <table class="health-table">
+        <thead>
+          <tr><th>Device</th><th>Type</th><th>Bus</th><th>Loading</th><th>Temperature</th><th>Last maintenance</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>DTR-1</td><td>11/0.415 kV 500 kVA</td><td>2</td><td><div class="load-bar-wrap"><div class="load-bar" style="width:68%;background:var(--success)"></div></div> 68%</td><td>62°C</td><td>2024-09-12</td><td><span class="pill pill-ok">healthy</span></td></tr>
+          <tr><td>DTR-2</td><td>11/0.415 kV 500 kVA</td><td>5</td><td><div class="load-bar-wrap"><div class="load-bar" style="width:72%;background:var(--success)"></div></div> 72%</td><td>68°C</td><td>2024-11-03</td><td><span class="pill pill-ok">healthy</span></td></tr>
+          <tr><td>DTR-3</td><td>11/0.415 kV 250 kVA</td><td>19</td><td><div class="load-bar-wrap"><div class="load-bar" style="width:81%;background:var(--warning)"></div></div> 81%</td><td>74°C</td><td>2024-07-22</td><td><span class="pill pill-warn">monitor</span></td></tr>
+          <tr><td>DTR-4</td><td>11/0.415 kV 500 kVA</td><td>9</td><td><div class="load-bar-wrap"><div class="load-bar" style="width:74%;background:var(--success)"></div></div> 74%</td><td>70°C</td><td>2025-01-08</td><td><span class="pill pill-ok">healthy</span></td></tr>
+          <tr><td>DTR-5</td><td>11/0.415 kV 500 kVA</td><td>28</td><td><div class="load-bar-wrap"><div class="load-bar" style="width:91%;background:var(--danger)"></div></div> 91%</td><td>84°C</td><td>2024-06-14</td><td><span class="pill pill-warn">overload</span></td></tr>
+          <tr><td>DTR-6</td><td>11/0.415 kV 250 kVA</td><td>6</td><td><div class="load-bar-wrap"><div class="load-bar" style="width:66%;background:var(--success)"></div></div> 66%</td><td>61°C</td><td>2025-02-19</td><td><span class="pill pill-ok">healthy</span></td></tr>
+          <tr><td>CB-01</td><td>11 kV VCB</td><td>0</td><td>—</td><td>—</td><td>2024-12-01</td><td><span class="pill pill-ok">closed</span></td></tr>
+          <tr><td>CB-02</td><td>11 kV VCB</td><td>5</td><td>—</td><td>—</td><td>2024-10-15</td><td><span class="pill pill-ok">closed</span></td></tr>
+          <tr><td>Relay-OC1</td><td>Overcurrent IED</td><td>0</td><td>—</td><td>—</td><td>2024-11-20</td><td><span class="pill pill-ok">armed</span></td></tr>
+          <tr><td>Relay-OC2</td><td>Overcurrent IED</td><td>9</td><td>—</td><td>—</td><td>2025-01-14</td><td><span class="pill pill-ok">armed</span></td></tr>
+          <tr><td>RTU-01</td><td>SCADA RTU (DNP3)</td><td>0</td><td>—</td><td>—</td><td>2025-03-01</td><td><span class="pill pill-ok">online</span></td></tr>
+          <tr><td>RTU-02</td><td>SCADA RTU (Modbus)</td><td>5</td><td>—</td><td>—</td><td>2025-02-10</td><td><span class="pill pill-info">polling</span></td></tr>
+          <tr><td>Meter-007</td><td>Smart meter (HES)</td><td>7</td><td>—</td><td>—</td><td>2024-08-30</td><td><span class="pill pill-warn">check NTL</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Protection relay status -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Voltage profile health — per bus</span></div>
+      <div class="chart-body" style="height:180px;padding:12px"><canvas id="busVoltHealth"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Thermal alerts</span></div>
+      <div class="card-body">
+        <div style="padding:8px 0;border-bottom:0.5px solid var(--border-light)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:500">DTR-5 · Bus 28</span><span class="pill pill-warn">91% load</span></div>
+          <div style="font-size:11px;color:var(--text-secondary)">84°C — approaching 90°C limit. Recommend load shedding on Branch C or capacitor bank addition.</div>
+        </div>
+        <div style="padding:8px 0;border-bottom:0.5px solid var(--border-light)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:500">DTR-3 · Bus 19</span><span class="pill pill-warn">81% load</span></div>
+          <div style="font-size:11px;color:var(--text-secondary)">74°C — elevated but within limits. Monitor during evening peak (18:00–22:00).</div>
+        </div>
+        <div style="padding:8px 0">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;font-weight:500">Line — Bus 30–31</span><span class="pill pill-warn">high current</span></div>
+          <div style="font-size:11px;color:var(--text-secondary)">Line loading 88%. Approaching thermal rating. Coordinate with SLDC for load dispatch adjustment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /health -->
+
+<!-- ══════════════════════════════════════════════════════ MANAGEMENT -->
+<div id="panel-management" class="panel">
+
+  <div class="two-col">
+    <!-- Operations log -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Operations log</span><span class="card-badge">today</span></div>
+      <div class="card-body" id="ops-log">
+        <div class="log-item"><div class="log-icon li-ok">✓</div><div><div class="log-ts">08:14:22</div><div class="log-action">Baseline recalibration complete</div><div class="log-sub">IsolationForest retrained — 2880 new samples ingested</div></div></div>
+        <div class="log-item"><div class="log-icon li-warn">!</div><div><div class="log-ts">07:52:09</div><div class="log-action">NTL alert — Bus 7</div><div class="log-sub">30-day rolling NTL 6.8% — threshold breach. Field inspection queued.</div></div></div>
+        <div class="log-item"><div class="log-icon li-info">i</div><div><div class="log-ts">06:30:00</div><div class="log-action">PINN online adaptive update</div><div class="log-sub">Model fine-tuned on overnight load profile. Drift correction applied.</div></div></div>
+        <div class="log-item"><div class="log-icon li-ok">✓</div><div><div class="log-ts">05:15:44</div><div class="log-action">Chaos engineering run complete</div><div class="log-sub">FDI detection: 100%. Theft detection: 100%. FPR: 0.0%. Weekly report generated.</div></div></div>
+        <div class="log-item"><div class="log-icon li-ok">✓</div><div><div class="log-ts">00:00:01</div><div class="log-action">Daily energy report auto-generated</div><div class="log-sub">Delivered: 31.4 MWh. Billed: 29.2 MWh. NTL: 7.0%. PDF dispatched to DISCOM.</div></div></div>
+      </div>
+    </div>
+
+    <!-- Right column: dispatch + switching -->
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Load dispatch summary</span></div>
+        <div class="card-body">
+          <div class="score-row"><span class="score-name">Branch A</span><div class="score-track"><div class="score-fill" style="width:58%;background:var(--success)"></div></div><span class="score-val">0.48 MW</span></div>
+          <div class="score-row"><span class="score-name">Branch B</span><div class="score-track"><div class="score-fill" style="width:74%;background:var(--success)"></div></div><span class="score-val">0.62 MW</span></div>
+          <div class="score-row"><span class="score-name">Branch C</span><div class="score-track"><div class="score-fill" style="width:91%;background:var(--warning)"></div></div><span class="score-val">0.76 MW ⚠</span></div>
+          <div class="score-row"><span class="score-name">Feeder 2</span><div class="score-track"><div class="score-fill" style="width:65%;background:var(--success)"></div></div><span class="score-val">0.87 MW</span></div>
+          <div style="margin-top:10px;padding:10px;background:var(--warning-bg);border-radius:var(--radius-md);font-size:11px;color:var(--warning);border:0.5px solid var(--warning-border)">
+            Recommendation: Shift 0.15 MW from Branch C to Branch B via tie switch TS-04. Reduces DTR-5 loading to ~76%.
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Switching log</span></div>
+        <div class="card-body">
+          <div class="log-item"><div class="log-icon li-ok">✓</div><div><div class="log-ts">Yesterday 14:22</div><div class="log-action">CB-03 opened — planned maintenance</div><div class="log-sub">Feeder 2 section isolated. Restored 14:58.</div></div></div>
+          <div class="log-item"><div class="log-icon li-info">i</div><div><div class="log-ts">2 days ago</div><div class="log-action">TS-02 closed — load balancing</div><div class="log-sub">Branch A / B tie. Approved by SLDC control room.</div></div></div>
+          <div class="log-item"><div class="log-icon li-warn">!</div><div><div class="log-ts">Scheduled</div><div class="log-action">TS-04 — pending approval</div><div class="log-sub">Branch C load transfer. Awaiting shift engineer sign-off.</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Pending actions</span></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="padding:8px;background:var(--danger-bg);border-radius:var(--radius-md);border:0.5px solid var(--danger-border)">
+              <div style="font-size:12px;font-weight:500;color:var(--danger)">Field inspection — Bus 7</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">NTL breach 6.8%. Check meter 007 for CT shunt or firmware tamper. Priority: high.</div>
+            </div>
+            <div style="padding:8px;background:var(--warning-bg);border-radius:var(--radius-md);border:0.5px solid var(--warning-border)">
+              <div style="font-size:12px;font-weight:500;color:var(--warning)">CERT-In report due</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Last CRITICAL alert within 6h window. Auto-draft ready — review and submit.</div>
+            </div>
+            <div style="padding:8px;background:var(--info-bg);border-radius:var(--radius-md);border:0.5px solid var(--info-border)">
+              <div style="font-size:12px;font-weight:500;color:var(--info)">DTR-5 maintenance schedule</div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:2px">91% loading consistently above threshold. Schedule inspection within 14 days.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /management -->
+
+</div><!-- /content -->
+</div><!-- /shell -->
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let atkMode = null;
+let tick = 0;
+let alerts = [];
+let sparkHistory = Array(40).fill(0.02);
+let sparkChart, loadChart, voltChart, ntlChart, energyChart, lineChart, freqChart, busVoltChart;
+const ATK = {
+  fdi:   {buses:[3,5], label:'FDI',      mitre:'T0832 — Manipulation of View',  col:'crit'},
+  theft: {buses:[7],   label:'THEFT',    mitre:'T0852 — NTL / meter bypass',    col:'high'},
+  liu:   {buses:[2,4,6],label:'FDI (Liu 2011)', mitre:'T0832 — stealthy, bypasses chi-sq', col:'crit'},
+};
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(id, btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='analytics' && !loadChart) buildCharts();
+  if(id==='health' && !busVoltChart) buildHealthChart();
+}
+
+// ── Clock ──────────────────────────────────────────────────────────────────
+function updateClock(){
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IN',{hour12:false});
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function r(lo,hi){return lo+Math.random()*(hi-lo)}
+function setFill(id, pct, score){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const c = score>0.65?'var(--danger)':score>0.40?'var(--warning)':'var(--success)';
+  el.style.width = Math.min(100,pct)+'%';
+  el.style.background = c;
+}
+function setBadge(id, score){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.className = score>0.65?'eng-badge badge-crit':score>0.40?'eng-badge badge-warn':'eng-badge badge-ok';
+  el.textContent = score>0.65?'CRITICAL':score>0.40?'WARNING':'normal';
+}
+function setCard(id, state){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.className = 'stat-card '+state;
+}
+
+// ── Main sim step ──────────────────────────────────────────────────────────
+function simStep(){
+  tick++;
+  const isAtk = atkMode !== null;
+  const cfg = isAtk ? ATK[atkMode] : null;
+  const hour = (new Date().getHours() + new Date().getMinutes()/60);
+  const diurnal = diurnalFactor(hour);
+
+  let res=r(0.019,0.025), ntl=0, freq=50+r(-0.008,0.008);
+  let li=r(0.28,0.36), pinnZ=r(0.8,1.4), ifScore=r(0.25,0.38);
+  let aeScore=0.02+Math.random()*0.02, dvScore=0.01+Math.random()*0.015;
+  let vkScore=0.018+Math.random()*0.02;
+  let load=(1.8+diurnal*0.5)+r(-0.05,0.05);
+
+  if(isAtk && atkMode==='fdi'){
+    res=r(8,22); pinnZ=r(140,200); ifScore=r(0.42,0.55);
+    aeScore=r(0.88,0.97); vkScore=r(0.85,0.95); li=r(0.38,0.52);
+  } else if(isAtk && atkMode==='theft'){
+    ntl=r(0.12,0.18); aeScore=r(0.80,0.92); vkScore=r(0.78,0.90);
+  } else if(isAtk && atkMode==='liu'){
+    res=r(5,14); pinnZ=r(110,160); aeScore=r(0.82,0.95); vkScore=r(0.80,0.92);
+  }
+
+  // Engine scores
+  setText('ae-score', aeScore.toFixed(3));
+  setText('dv-score', dvScore.toFixed(3));
+  setText('vk-score', vkScore.toFixed(3));
+  setFill('ae-fill', aeScore*100, aeScore);
+  setFill('dv-fill', dvScore*100, dvScore);
+  setFill('vk-fill', vkScore*100, vkScore);
+  setBadge('ae-badge', aeScore);
+  setBadge('dv-badge', dvScore);
+  setBadge('vk-badge', vkScore);
+
+  // Stat cards
+  setText('val-freq', freq.toFixed(2));
+  setText('val-load', load.toFixed(2));
+  setText('val-ntl', (ntl*100).toFixed(2));
+  setText('val-pf', (0.87+r(0,0.04)).toFixed(2));
+  setText('val-res', res.toFixed(3));
+  setText('val-li', li.toFixed(3));
+  setText('val-loss', (17.8+r(0,1.2)).toFixed(1));
+  setText('val-alerts', alerts.length.toString());
+
+  setCard('card-freq', Math.abs(freq-50)>0.2?'warn':'ok');
+  setCard('card-ntl', ntl>0.05?'crit':'ok');
+  setCard('card-res', res>0.037?'crit':'ok');
+  setCard('card-li', li>0.7?'crit':li>0.5?'warn':'ok');
+  setCard('card-alerts', alerts.length>0?'warn':'ok');
+
+  // Score bars
+  const resPct = Math.min(100,(res/0.037)*3);
+  setFill('sf-res', resPct, resPct/100); setText('sv-res', res.toFixed(3));
+  const pinnPct = Math.min(100, pinnZ/2);
+  setFill('sf-pinn', pinnPct, pinnPct/100); setText('sv-pinn', pinnZ.toFixed(1)+'σ');
+  setFill('sf-if', ifScore*100, ifScore); setText('sv-if', ifScore.toFixed(2));
+  setFill('sf-ntl', ntl*200, ntl*2); setText('sv-ntl', (ntl*100).toFixed(2)+'%');
+  setFill('sf-fast', 60+r(-5,10), 0.6); setText('sv-fast', (0.60+r(-0.05,0.1)).toFixed(2));
+
+  // Sys dot
+  const dot = document.getElementById('sys-dot');
+  dot.className = 'sys-dot'+(vkScore>0.65?' crit':vkScore>0.40?' warn':'');
+
+  // Sparkline
+  sparkHistory.push(aeScore);
+  if(sparkHistory.length>40) sparkHistory.shift();
+  drawSparkline();
+  document.getElementById('spark-status').textContent = isAtk?cfg.label+' DETECTED':'nominal';
+
+  // Alerts
+  if(isAtk && tick%4===0){
+    const ts = new Date().toLocaleTimeString('en-IN',{hour12:false});
+    alerts.unshift({
+      level:vkScore>0.80?'crit':'high',
+      ts, type:cfg.label,
+      desc: atkMode==='theft'
+        ? 'NTL '+(ntl*100).toFixed(1)+'% — bus '+cfg.buses[0]+' meter bypass'
+        : 'Residual '+res.toFixed(1)+' pu at buses ['+cfg.buses.join(',')+']',
+      mitre: cfg.mitre,
+      score: vkScore
+    });
+    if(alerts.length>8) alerts.pop();
+    renderAlerts();
+  }
+
+  // Explanation
+  if(isAtk){
+    const expl = atkMode==='theft'
+      ? `<strong>Theft detected</strong> — bus ${cfg.buses[0]}. NTL ${(ntl*100).toFixed(1)}% exceeds 5% threshold. Slow-window multiscale detector triggered after ${Math.min(tick*2,45)}s. Recommended action: dispatch field inspection to bus ${cfg.buses[0]}.`
+      : `<strong>${cfg.label} detected</strong> — buses [${cfg.buses.join(', ')}]. Physics residual ${res.toFixed(2)} pu (${(res/0.037).toFixed(0)}× threshold). PINN z-score ${pinnZ.toFixed(0)}σ. KCL violated: observed voltages cannot satisfy AC power flow equations for this topology.`;
+    document.getElementById('explain-box').innerHTML = expl;
+  } else {
+    document.getElementById('explain-box').textContent = 'System nominal. All physics residuals within calibrated threshold (0.037 pu). No NTL anomaly detected.';
+  }
+
+  // Update grid map nodes
+  updateMapNodes(isAtk ? cfg.buses : []);
+}
+
+function diurnalFactor(h){
+  if(h<6) return 0.5;
+  if(h<9) return 0.5+(0.8-0.5)*(h-6)/3;
+  if(h<12) return 0.8+(1.1-0.8)*(h-9)/3;
+  if(h<15) return 1.1;
+  if(h<18) return 1.1-(0.15)*(h-15)/3;
+  if(h<22) return 0.95+(1.3-0.95)*(h-18)/4;
+  return 1.3-(0.6)*(h-22)/2;
+}
+
+function setText(id, val){
+  const el=document.getElementById(id); if(el) el.textContent=val;
+}
+
+function renderAlerts(){
+  const list = document.getElementById('alert-list');
+  document.getElementById('alert-count-badge').textContent=alerts.length+(alerts.length===1?' alert':' alerts');
+  document.getElementById('val-alerts').textContent=alerts.length;
+  if(!alerts.length){
+    list.innerHTML='<div class="empty-state">No alerts — system nominal</div>';
+    return;
+  }
+  list.innerHTML=alerts.map(a=>`
+    <div class="alert-item ${a.level}">
+      <div class="alert-row">
+        <span class="alert-lv lv-${a.level}">${a.level.toUpperCase()}</span>
+        <span class="alert-ts">${a.ts}</span>
+      </div>
+      <div class="alert-type">${a.type}</div>
+      <div class="alert-desc">${a.desc}</div>
+      <div class="alert-mitre">${a.mitre} · score ${a.score.toFixed(3)}</div>
+    </div>`).join('');
+}
+
+// ── Grid map node colors ───────────────────────────────────────────────────
+function updateMapNodes(attacked){
+  const nodeIds = [3,5,7,1,18,19,26,30,33];
+  nodeIds.forEach(id=>{
+    const el = document.getElementById('node-'+id);
+    if(!el) return;
+    const fill = attacked.includes(id)?'var(--danger)':id===30?'var(--warning)':'var(--success)';
+    el.setAttribute('fill', fill);
+  });
+  const elB = document.getElementById('node-7b');
+  if(elB) elB.setAttribute('fill', attacked.includes(7)?'var(--danger)':'var(--success)');
+
+  ['line-trunk','line-a','line-b','line-c'].forEach(lid=>{
+    const el=document.getElementById(lid);
+    if(el) el.setAttribute('stroke', atkMode?'var(--warning)':'var(--success)');
+  });
+}
+
+// ── Sparkline ──────────────────────────────────────────────────────────────
+function drawSparkline(){
+  if(!sparkChart) return;
+  sparkChart.data.datasets[0].data = [...sparkHistory];
+  sparkChart.update('none');
+}
+
+// ── Attack injection ───────────────────────────────────────────────────────
+function injectAtk(type){
+  atkMode=type;
+  ['fdi','theft','liu'].forEach(t=>{
+    document.getElementById('btn-'+t).className='demo-btn'+(t===type?' active-atk':'');
+  });
+  alerts=[]; renderAlerts();
+}
+function resetAtk(){
+  atkMode=null;
+  ['fdi','theft','liu'].forEach(t=>{ document.getElementById('btn-'+t).className='demo-btn'; });
+  alerts=[]; renderAlerts();
+  updateMapNodes([]);
+  sparkHistory=Array(40).fill(0.02);
+  drawSparkline();
+  document.getElementById('explain-box').textContent='System nominal. All physics residuals within calibrated threshold.';
+}
+
+// ── Chart.js helpers ───────────────────────────────────────────────────────
+function isDark(){ return window.matchMedia('(prefers-color-scheme:dark)').matches; }
+function chartDefaults(){
+  const dark=isDark();
+  return {
+    textColor: dark?'#a8a69e':'#6b6a64',
+    gridColor: dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)',
+    successColor: dark?'#5dcaa5':'#0f6e56',
+    warningColor: dark?'#ef9f27':'#854f0b',
+    dangerColor: dark?'#f09595':'#a32d2d',
+    infoColor: dark?'#85b7eb':'#185fa5',
+  };
+}
+function baseOptions(title=''){
+  const d=chartDefaults();
+  return {
+    responsive:true, maintainAspectRatio:false, animation:{duration:600},
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+      backgroundColor:isDark()?'#2c2c2a':'#fff',
+      titleColor:isDark()?'#e8e6e0':'#1a1a18',
+      bodyColor:isDark()?'#a8a69e':'#6b6a64',
+      borderColor:isDark()?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)',
+      borderWidth:1
+    }},
+    scales:{x:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}}},
+            y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}}}}
+  };
+}
+
+function buildCharts(){
+  const d=chartDefaults();
+  const hours=Array.from({length:24},(_,i)=>i+':00');
+  const loadProfile=[0.95,0.88,0.80,0.76,0.74,0.78,1.05,1.42,1.58,1.62,1.55,1.60,1.68,1.62,1.75,1.80,1.72,1.85,2.10,2.35,2.48,2.55,2.20,1.65];
+
+  const buses=Array.from({length:33},(_,i)=>'B'+i);
+  const volts=[1.000,0.997,0.991,0.988,0.984,0.985,0.978,0.981,0.976,0.973,0.970,0.968,0.965,0.962,0.961,0.959,0.961,0.960,0.958,0.979,0.975,0.972,0.970,0.975,0.972,0.970,0.982,0.979,0.970,0.966,0.965,0.963,0.960,0.958];
+
+  const days=Array.from({length:30},(_,i)=>{const d=new Date();d.setDate(d.getDate()-29+i);return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});});
+  const ntlTrend=days.map((_,i)=>+(4.5+Math.sin(i/5)*1.5+Math.random()*0.8).toFixed(2));
+
+  const lineLoads=[72,58,74,91,65,68,72,81,74,91,66,78,62];
+
+  const freqPts=Array.from({length:60},(_,i)=>+(50+Math.sin(i/10)*0.05+(Math.random()-0.5)*0.04).toFixed(4));
+
+  const ctx1=document.getElementById('loadChart');
+  if(ctx1) loadChart=new Chart(ctx1,{type:'line',data:{labels:hours,datasets:[{data:loadProfile,borderColor:d.successColor,backgroundColor:d.successColor+'18',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},options:{...baseOptions(),scales:{x:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:9},maxTicksLimit:8}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}},min:0,max:3}}}});
+
+  const ctx2=document.getElementById('voltChart');
+  if(ctx2) voltChart=new Chart(ctx2,{type:'bar',data:{labels:buses,datasets:[{data:volts.slice(0,33),backgroundColor:volts.slice(0,33).map(v=>v<0.95?d.dangerColor+'cc':v<0.97?d.warningColor+'cc':d.successColor+'cc'),borderWidth:0}]},options:{...baseOptions(),scales:{x:{grid:{display:false},ticks:{color:d.textColor,font:{size:8},maxTicksLimit:12}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}},min:0.94,max:1.01}}}});
+
+  const ctx3=document.getElementById('ntlChart');
+  if(ctx3) ntlChart=new Chart(ctx3,{type:'line',data:{labels:days,datasets:[{data:ntlTrend,borderColor:d.warningColor,backgroundColor:d.warningColor+'18',fill:true,tension:0.4,pointRadius:0,borderWidth:2},{data:Array(30).fill(5),borderColor:d.dangerColor,borderDash:[4,3],borderWidth:1,pointRadius:0,fill:false}]},options:{...baseOptions(),scales:{x:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:9},maxTicksLimit:6}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}},min:0,max:12}}}});
+
+  const ctx4=document.getElementById('energyChart');
+  if(ctx4) energyChart=new Chart(ctx4,{type:'bar',data:{labels:days.slice(-7),datasets:[{label:'Input',data:[31.4,30.8,32.1,29.9,31.7,30.5,31.4].map(v=>+v.toFixed(1)),backgroundColor:d.infoColor+'88',borderWidth:0},{label:'Billed',data:[29.2,28.6,29.8,27.8,29.5,28.3,29.2].map(v=>+v.toFixed(1)),backgroundColor:d.successColor+'88',borderWidth:0}]},options:{...baseOptions(),plugins:{legend:{display:true,labels:{color:d.textColor,font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{color:d.textColor,font:{size:9}}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}},min:25}}}});
+
+  const ctx5=document.getElementById('lineChart');
+  if(ctx5) lineChart=new Chart(ctx5,{type:'bar',data:{labels:['<50%','50-60%','60-70%','70-80%','80-90%','>90%'],datasets:[{data:[4,3,8,7,4,2],backgroundColor:[d.successColor+'99',d.successColor+'88',d.successColor+'77',d.warningColor+'88',d.warningColor+'aa',d.dangerColor+'aa'],borderWidth:0}]},options:{...baseOptions(),scales:{x:{grid:{display:false},ticks:{color:d.textColor,font:{size:10}}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10},stepSize:2}}}}});
+
+  const ctx6=document.getElementById('freqChart');
+  if(ctx6) freqChart=new Chart(ctx6,{type:'line',data:{labels:Array.from({length:60},(_,i)=>i%10===0?'-'+(60-i)+'s':''),datasets:[{data:freqPts,borderColor:d.infoColor,backgroundColor:'transparent',tension:0.3,pointRadius:0,borderWidth:1.5},{data:Array(60).fill(50),borderColor:d.dangerColor,borderDash:[3,2],borderWidth:1,pointRadius:0,fill:false}]},options:{...baseOptions(),scales:{x:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:9}}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}},min:49.9,max:50.1}}}});
+}
+
+function buildHealthChart(){
+  const d=chartDefaults();
+  const buses=['B3','B5','B7','B9','B15','B18','B19','B23','B28','B30','B33'];
+  const volts=[0.988,0.985,0.981,0.973,0.959,0.958,0.979,0.975,0.970,0.965,0.958];
+  const ctx=document.getElementById('busVoltHealth');
+  if(ctx) busVoltChart=new Chart(ctx,{type:'bar',data:{labels:buses,datasets:[{data:volts,backgroundColor:volts.map(v=>v<0.95?d.dangerColor+'bb':v<0.97?d.warningColor+'bb':d.successColor+'bb'),borderWidth:0}]},options:{...baseOptions(),scales:{x:{grid:{display:false},ticks:{color:d.textColor,font:{size:9}}},y:{grid:{color:d.gridColor},ticks:{color:d.textColor,font:{size:10}},min:0.94,max:1.01}}}});
+}
+
+// ── Sparkline init ─────────────────────────────────────────────────────────
+function initSparkline(){
+  const d=chartDefaults();
+  const ctx=document.getElementById('sparkChart');
+  if(!ctx) return;
+  sparkChart=new Chart(ctx,{
+    type:'line',
+    data:{labels:Array(40).fill(''),datasets:[{data:[...sparkHistory],borderColor:d.successColor,backgroundColor:d.successColor+'15',fill:true,tension:0.4,pointRadius:0,borderWidth:1.5}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:0},
+      plugins:{legend:{display:false},tooltip:{enabled:false}},
+      scales:{x:{display:false},y:{display:false,min:0,max:1.05}}}
+  });
+}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+setInterval(updateClock,1000);
+setInterval(simStep,2000);
+updateClock();
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',()=>{initSparkline();simStep();});
+} else {
+  initSparkline(); simStep();
+}
+</script>
+</body>
+</html>
